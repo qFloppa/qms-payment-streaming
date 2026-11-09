@@ -1,0 +1,25 @@
+# Workspace tooling and local state
+.agents/
+.codex/
+.aws/
+.remember/
+skills-lock.json
+
+# Dependencies, local environment, and build output
+node_modules/
+.env
+.env.*
+!.env.example
+dist/
+coverage/
+.DS_Store
+
+# Pen's intermediate exports; named screens are the review artifacts
+design/exports/jEJyo.png
+design/exports/MgMuF.png
+design/exports/tJdBJ.png
+design/exports/P825X.png
+design/exports/KMabm.png
+design/exports/OflAo.png
+design/exports/VnKwv.png
+design/exports/fM6t1.png

@@ -3,6 +3,12 @@ pragma solidity 0.8.38;
 
 /// @notice Native-currency streams with no administrator, fees, or upgradeability.
 contract RillStream {
+    struct Payout {
+        address recipient;
+        uint256 amount;
+        uint64 duration;
+        string label;
+    }
     struct Stream {
         address sender;
         address recipient;
@@ -26,11 +32,15 @@ contract RillStream {
     error StreamEnded();
     error TransferFailed();
     error ReentrantCall();
+    error InvalidBatch();
+    error InvalidLabel();
+    error DepositMismatch();
 
     mapping(uint256 => Stream) private _streams;
     mapping(address => uint256[]) private _walletStreams;
     uint256 private _nextId = 1;
     bool private _entered;
+    mapping(uint256 => string) public streamLabel;
 
     modifier nonReentrant() {
         if (_entered) revert ReentrantCall();
@@ -40,16 +50,38 @@ contract RillStream {
     }
 
     function createStream(address recipient, uint64 duration) external payable nonReentrant returns (uint256 streamId) {
+        return _createStream(recipient, duration, msg.value, "");
+    }
+
+    function createNamedStream(address recipient, uint64 duration, string calldata label) external payable nonReentrant returns (uint256 streamId) {
+        return _createStream(recipient, duration, msg.value, label);
+    }
+
+    function createStreams(Payout[] calldata items) external payable nonReentrant returns (uint256[] memory ids) {
+        if (items.length == 0 || items.length > 25) revert InvalidBatch();
+        ids = new uint256[](items.length);
+        uint256 total;
+        for (uint256 i; i < items.length; i++) {
+            Payout calldata item = items[i];
+            total += item.amount;
+            ids[i] = _createStream(item.recipient, item.duration, item.amount, item.label);
+        }
+        if (total != msg.value) revert DepositMismatch();
+    }
+
+    function _createStream(address recipient, uint64 duration, uint256 amount, string memory label) private returns (uint256 streamId) {
         if (recipient == address(0)) revert InvalidRecipient();
-        if (msg.value == 0) revert InvalidDeposit();
+        if (amount == 0) revert InvalidDeposit();
+        if (bytes(label).length > 80) revert InvalidLabel();
         if (duration < 60 || duration > 365 days || block.timestamp > type(uint64).max - duration) revert InvalidDuration();
         streamId = _nextId++;
         uint64 startTime = uint64(block.timestamp);
         uint64 endTime = startTime + duration;
-        _streams[streamId] = Stream(msg.sender, recipient, msg.value, 0, 0, startTime, endTime, 0);
+        _streams[streamId] = Stream(msg.sender, recipient, amount, 0, 0, startTime, endTime, 0);
+        if (bytes(label).length != 0) streamLabel[streamId] = label;
         _walletStreams[msg.sender].push(streamId);
         if (recipient != msg.sender) _walletStreams[recipient].push(streamId);
-        emit StreamCreated(streamId, msg.sender, recipient, msg.value, startTime, endTime);
+        emit StreamCreated(streamId, msg.sender, recipient, amount, startTime, endTime);
     }
 
     function getStream(uint256 streamId) external view returns (Stream memory) { return _stream(streamId); }

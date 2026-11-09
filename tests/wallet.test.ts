@@ -60,3 +60,26 @@ test("pending metadata survives reload, malformed data is ignored, timeouts rema
   assert.equal(receiptState({ status: "reverted" }), "failed");
   assert.equal(receiptState({ status: "success" }), "confirmed");
 });
+
+test("batch recovery retains its exact calldata and rejects incomplete batch records", () => {
+  const item = {
+    hash: `0x${"b".repeat(64)}`,
+    chainId: 19480,
+    contract: wallet,
+    wallet,
+    action: "batch",
+    submittedAt: 1,
+    data: "0x12345678",
+    value: "3000000000000000000",
+    count: 2,
+  };
+  assert.deepEqual(parsePending(JSON.stringify([item])), [item]);
+  for (const corrupt of [
+    { ...item, count: 0 },
+    { ...item, count: 26 },
+    { ...item, data: undefined },
+    { ...item, value: undefined },
+    { ...item, data: "0x12broken" },
+  ])
+    assert.deepEqual(parsePending(JSON.stringify([corrupt])), []);
+});

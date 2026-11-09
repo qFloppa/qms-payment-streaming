@@ -1,5 +1,7 @@
 # Rill implementation and verification
 
+This document records the original **V1** release. The current source builds **V2**, adding named streams and atomic contributor payouts. V2 has a different runtime hash and is not yet deployed on QMS Testnet; see the current [README](../README.md) and [builder notes](builder-program.md). The V1 deployment and source-verification evidence below remain historical evidence for that original contract.
+
 Direction A remains the approved design. Implementation resumed on `feat/rill-app` from `1fe7d97044c9319b6282f5f86a84e56a4417d55b`. Work was performed solo as requested; the plan's independent-agent review was replaced by a separate manual review of contract invariants, wallet state, receipt handling, data queries, and rendering.
 
 ## Runtime and deployment
@@ -50,16 +52,16 @@ Two initial harness defects were corrected: Anvil's transaction pool rejects cos
 
 Browser plugin not available; regular Playwright with installed Chrome is the fallback. Accepted exports and actual screenshots were inspected with `view_image`. Desktop viewport: 1440 × 1000. Mobile viewport: 390 × 844, with full-page captures.
 
-| Comparison | Accepted reference | Implementation check |
-| --- | --- | --- |
-| Copy and hierarchy | `design/exports/a-first-visit.png` | Exact headline, trial CTA, secondary link, preview label, and three onboarding steps |
-| Shell and spacing | All desktop A exports | 214 px rail, 56 px main gutters, open composition and warm rail/background |
-| Typography and money | First visit and active stream | Local Instrument Serif and DM Sans, tabular figures, matched number spacing and hierarchy |
-| Palette and icons | All A exports | Warm `#FAF9F6`, ink `#252721`, rust `#B95E40`, soft `#EEE8DE`, Lucide stroke icons |
-| Form composition | `design/exports/a-create-stream.png` | Recipient, large amount, four duration choices, terms, and adjacent payment preview |
-| Timeline | `design/exports/a-active-stream.png` | Sixty ticks, quarter-duration labels, withdrawn/available/scheduled segments and balances |
-| Responsive detail | `design/exports/a-mobile.png` | Header, 20 px gutters, stacked amounts/details, full-width withdrawal, activity then cancellation |
-| Keyboard and motion | Interaction notes | Native modal focus trap, Escape and focus restoration, visible focus, touch targets, reduced motion |
+| Comparison           | Accepted reference                   | Implementation check                                                                                |
+| -------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Copy and hierarchy   | `design/exports/a-first-visit.png`   | Exact headline, trial CTA, secondary link, preview label, and three onboarding steps                |
+| Shell and spacing    | All desktop A exports                | 214 px rail, 56 px main gutters, open composition and warm rail/background                          |
+| Typography and money | First visit and active stream        | Local Instrument Serif and DM Sans, tabular figures, matched number spacing and hierarchy           |
+| Palette and icons    | All A exports                        | Warm `#FAF9F6`, ink `#252721`, rust `#B95E40`, soft `#EEE8DE`, Lucide stroke icons                  |
+| Form composition     | `design/exports/a-create-stream.png` | Recipient, large amount, four duration choices, terms, and adjacent payment preview                 |
+| Timeline             | `design/exports/a-active-stream.png` | Sixty ticks, quarter-duration labels, withdrawn/available/scheduled segments and balances           |
+| Responsive detail    | `design/exports/a-mobile.png`        | Header, 20 px gutters, stacked amounts/details, full-width withdrawal, activity then cancellation   |
+| Keyboard and motion  | Interaction notes                    | Native modal focus trap, Escape and focus restoration, visible focus, touch targets, reduced motion |
 
 Above-the-fold first-visit copy matches the approved screen. Functional differences are deliberate: real addresses, balances and timestamps replace samples; local testing names the local network; a share control and confirmed-block note make live data inspectable; a mobile menu exposes navigation. QMSScan links use QMS deployment data and are not invented for local transactions. Form errors, status messages and setup reflect actual state.
 

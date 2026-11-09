@@ -7,6 +7,10 @@ import {
   Menu,
   Wallet,
   X,
+  LayoutDashboard,
+  Users,
+  Link2,
+  ContactRound,
 } from "lucide-react";
 import { useRill } from "../context/RillContext";
 import { chain } from "../lib/config";
@@ -33,24 +37,53 @@ export function Shell({
   const [menu, setMenu] = useState(false);
   const [help, setHelp] = useState(false);
   const activity = route === "/activity";
+  const links = [
+    {
+      href: "/",
+      label: "Overview",
+      icon: LayoutDashboard,
+      selected: route === "/",
+    },
+    {
+      href: "/streams",
+      label: "Streams",
+      icon: ArrowLeftRight,
+      selected: route.startsWith("/streams") || route === "/create",
+    },
+    {
+      href: "/batch",
+      label: "Team payouts",
+      icon: Users,
+      selected: route === "/batch",
+    },
+    {
+      href: "/request",
+      label: "Request a payment",
+      icon: Link2,
+      selected: route === "/request",
+    },
+    {
+      href: "/contacts",
+      label: "Contacts",
+      icon: ContactRound,
+      selected: route === "/contacts",
+    },
+    { href: "/activity", label: "Activity", icon: Clock3, selected: activity },
+  ];
   const navigation = (
     <nav aria-label="Main navigation">
-      <a
-        className={!activity ? "selected" : ""}
-        href={wallet.account ? "#/streams" : "#/"}
-        onClick={() => setMenu(false)}
-      >
-        <ArrowLeftRight size={18} />
-        Streams
-      </a>
-      <a
-        className={activity ? "selected" : ""}
-        href="#/activity"
-        onClick={() => setMenu(false)}
-      >
-        <Clock3 size={18} />
-        Activity
-      </a>
+      {links.map(({ href, label, icon: Icon, selected }) => (
+        <a
+          key={href}
+          href={`#${href}`}
+          className={selected ? "selected" : ""}
+          aria-current={selected ? "page" : undefined}
+          onClick={() => setMenu(false)}
+        >
+          <Icon size={18} />
+          {label}
+        </a>
+      ))}
     </nav>
   );
   return (
@@ -59,9 +92,12 @@ export function Shell({
         <a className="wordmark" href="#/">
           rill
         </a>
-        <span className="brand-caption">Payment streams</span>
+        <span className="brand-caption">Contributor payments</span>
         {navigation}
         <div className="rail-bottom">
+          <a className="text-link small" href="#/setup">
+            Deployment setup
+          </a>
           <button className="text-button" onClick={() => setHelp(true)}>
             How streams work
           </button>
@@ -76,8 +112,17 @@ export function Shell({
           <a className="wordmark mobile-logo" href="#/">
             rill
           </a>
-          <a className="breadcrumb" href="#/streams">
-            {activity ? "Activity" : route === "/setup" ? "Setup" : "Streams"}
+          <a
+            className="breadcrumb"
+            href={
+              route === "/setup"
+                ? "#/setup"
+                : `#${links.find((link) => link.selected)?.href ?? "/"}`
+            }
+          >
+            {route === "/setup"
+              ? "Setup"
+              : (links.find((link) => link.selected)?.label ?? "Overview")}
           </a>
           <div className="header-actions">
             <button

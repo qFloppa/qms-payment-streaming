@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Users, Link2 } from "lucide-react";
 
 export function Home() {
   return (
@@ -10,9 +10,9 @@ export function Home() {
             <br />A little at a time.
           </h1>
           <p className="hero-description">
-            Fund a payment once. Let it become available
-            <br className="desktop-break" /> as time passes. The recipient
-            withdraws when ready.
+            Fund your contributors. Let payments unlock
+            <br className="desktop-break" /> as time passes. Everyone withdraws
+            when they’re ready.
           </p>
           <a className="primary trial-button" href="#/create?trial=1">
             Try a 1-minute stream <ArrowUpRight size={17} />
@@ -66,6 +66,24 @@ export function Home() {
           </p>
         </div>
       </section>
+      <div className="workspace-actions home-actions">
+        <a href="#/batch">
+          <Users size={22} />
+          <div>
+            <strong>Pay your team</strong>
+            <span>Fund up to 25 contributors in one transaction.</span>
+          </div>
+          <ArrowUpRight size={18} />
+        </a>
+        <a href="#/request">
+          <Link2 size={22} />
+          <div>
+            <strong>Get paid with a link</strong>
+            <span>Share a payment request with your client.</span>
+          </div>
+          <ArrowUpRight size={18} />
+        </a>
+      </div>
       <section className="onboarding">
         <h2>Three small steps. A real onchain payment.</h2>
         <div className="steps">

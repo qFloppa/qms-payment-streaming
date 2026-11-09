@@ -1,7 +1,7 @@
 import { isAddress } from "viem";
 import type { Address, Hash } from "viem";
 import { sameAddress } from "./domain.ts";
-export type Action = "create" | "withdraw" | "cancel" | "deploy";
+export type Action = "create" | "batch" | "withdraw" | "cancel" | "deploy";
 export type Pending = {
   hash: Hash;
   chainId: number;
@@ -11,6 +11,9 @@ export type Pending = {
   submittedAt: number;
   streamId?: string;
   intentChanged?: boolean;
+  data?: `0x${string}`;
+  value?: string;
+  count?: number;
 };
 export class SubmissionGate {
   private busy = false;
@@ -48,9 +51,19 @@ export function parsePending(raw: string | null): Pending[] {
         isAddress(item.wallet) &&
         Number.isSafeInteger(item.chainId) &&
         item.chainId > 0 &&
-        ["create", "withdraw", "cancel", "deploy"].includes(item.action) &&
+        ["create", "batch", "withdraw", "cancel", "deploy"].includes(
+          item.action,
+        ) &&
         Number.isFinite(item.submittedAt) &&
-        (item.streamId === undefined || /^\d+$/.test(item.streamId)),
+        (item.streamId === undefined || /^\d+$/.test(item.streamId)) &&
+        (item.data === undefined || /^0x(?:[0-9a-f]{2})*$/i.test(item.data)) &&
+        (item.value === undefined || /^\d+$/.test(item.value)) &&
+        (item.action !== "batch" ||
+          (item.data &&
+            item.value &&
+            Number.isInteger(item.count) &&
+            item.count >= 1 &&
+            item.count <= 25)),
     );
   } catch {
     return [];

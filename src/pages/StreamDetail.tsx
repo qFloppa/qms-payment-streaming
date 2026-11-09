@@ -87,9 +87,10 @@ export function StreamDetail({ id }: { id: bigint }) {
     <>
       <PageHeading
         title={
-          self && sender && duration === 60
+          stream.label ||
+          (self && sender && duration === 60
             ? "Your first minute"
-            : `Stream #${id}`
+            : `Stream #${id}`)
         }
         subtitle={`${self && sender ? "You to you" : `${shortAddress(stream.sender)} to ${shortAddress(stream.recipient)}`} · ${formatAmount(stream.deposit).replace(/\.0+$/, "")} QMS over ${duration === 60 ? "60 seconds" : durationLabel(duration)}`}
       >

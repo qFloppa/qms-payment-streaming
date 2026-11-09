@@ -38,18 +38,30 @@ export default function Setup() {
   return (
     <>
       <PageHeading
-        title="Set up Rill"
-        subtitle={`Deploy the stream contract once on ${chain.name}, then share your app.`}
+        title="Set up Rill V2"
+        subtitle={`Deploy contributor payments on ${chain.name}, then share your app.`}
       />
       <div className="setup-content">
         <p>
           Connect your wallet to review the network fee and deploy. The contract
           has no administrator, protocol fee, or upgrade mechanism.
         </p>
-        {data?.verified ? (
+        {data?.version === 1 ? (
+          <section className="notice">
+            <span>
+              You’re using the original Rill deployment. Your existing streams
+              remain available there. Deploy V2 below to enable named streams
+              and atomic team payouts.
+            </span>
+          </section>
+        ) : null}
+        {data?.verified && data.version === 2 ? (
           <section className="notice setup-success">
             <h2>Rill is ready.</h2>
-            <p>The deployed contract’s code matches this app.</p>
+            <p>
+              The V2 contract’s code matches this app. Names and batch payouts
+              are enabled.
+            </p>
             <p className="full-address">{data.verified}</p>
             <CopyButton
               value={share.toString()}

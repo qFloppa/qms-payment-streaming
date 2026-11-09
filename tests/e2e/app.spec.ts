@@ -142,6 +142,357 @@ async function trial(page: Page) {
     .click();
   await expect(page).toHaveURL(/#\/streams\/1$/);
 }
+
+test("a contributor request preserves exact terms through review, funding, and refresh", async ({
+  page,
+}) => {
+  await injectWallet(page);
+  await page.goto("/#/request");
+  await connect(page);
+  await page.getByLabel("Recipient wallet").fill(config.accounts[1]);
+  await page.getByLabel("Stream name").fill("November design retainer");
+  await page.getByLabel("Requested amount").fill("1.000000000000000001");
+  await page
+    .getByRole("button", { name: "Create request link", exact: true })
+    .click();
+  const link = await page.getByLabel("Payment request link").inputValue();
+  await page.screenshot({
+    path: "/tmp/qms-qa/request-desktop.png",
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: "/tmp/qms-qa/request-mobile.png",
+    fullPage: true,
+  });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
+    390,
+  );
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(link);
+  await expect(page.getByLabel("Total payment")).toHaveValue(
+    "1.000000000000000001",
+  );
+  await expect(page.getByLabel("Stream name")).toHaveValue(
+    "November design retainer",
+  );
+  await page
+    .getByRole("button", { name: "Review stream", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "November design retainer",
+  );
+  await page
+    .getByRole("button", { name: "Confirm in wallet", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/streams\/1$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "November design retainer",
+  );
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "November design retainer",
+  );
+});
+
+test("CSV batch funds independent contributors, populates the dashboard, and permits a recipient withdrawal", async ({
+  page,
+}) => {
+  await injectWallet(page);
+  await page.goto("/#/batch");
+  await connect(page);
+  await page.getByRole("button", { name: "Import CSV", exact: true }).click();
+  await page
+    .getByLabel("CSV contents")
+    .fill(
+      `recipient,amount,name\n${config.accounts[1]},1,Design\n${config.accounts[2]},2,Development`,
+    );
+  await page
+    .getByRole("button", { name: "Use these recipients", exact: true })
+    .click();
+  await page.getByLabel("Payout duration").selectOption("60");
+  await page.screenshot({
+    path: "/tmp/qms-qa/batch-desktop.png",
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: "/tmp/qms-qa/batch-mobile.png",
+    fullPage: true,
+  });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
+    390,
+  );
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page
+    .getByRole("button", { name: "Review 2 payouts", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText("3.00000");
+  await expect(page.getByRole("dialog")).toContainText("Development");
+  await page.screenshot({
+    path: "/tmp/qms-qa/batch-review.png",
+    fullPage: true,
+  });
+  await page
+    .getByRole("button", { name: "Confirm in wallet", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/streams$/);
+  await expect(
+    page.getByRole("link").filter({ hasText: "Development" }),
+  ).toBeVisible();
+  await page.goto("/#/");
+  await expect(page.getByTestId("outgoing-total")).toContainText("3.00000");
+  await page.screenshot({
+    path: "/tmp/qms-qa/workspace-desktop.png",
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: "/tmp/qms-qa/workspace-mobile.png",
+    fullPage: true,
+  });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
+    390,
+  );
+  const client = createPublicClient({ transport: http(config.rpcUrl) });
+  const stream = await client.readContract({
+    address: config.contract,
+    abi: rillAbi,
+    functionName: "getStream",
+    args: [1n],
+  });
+  await rpc("evm_setNextBlockTimestamp", [Number(stream.startTime + 30n)]);
+  await rpc("evm_mine");
+  await page.evaluate((account) => {
+    (window as any).testWallet.state.account = account;
+    (window as any).testWallet.emit("accountsChanged");
+  }, config.accounts[1]);
+  await page.goto("/#/streams/1");
+  await expect(page.getByTestId("available")).toContainText("0.50000");
+  await page.getByRole("button", { name: "Withdraw QMS", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Confirm in wallet", exact: true })
+    .click();
+  await expect(
+    page.getByText("Withdrawal confirmed.", { exact: false }),
+  ).toBeVisible();
+  expect(
+    (
+      await client.readContract({
+        address: config.contract,
+        abi: rillAbi,
+        functionName: "getStream",
+        args: [1n],
+      })
+    ).withdrawn,
+  ).toBe(500000000000000000n);
+});
+
+test("contacts persist for their wallet and can populate a new named stream", async ({
+  page,
+}) => {
+  await injectWallet(page);
+  await page.goto("/#/contacts");
+  await connect(page);
+  await page.getByLabel("Contact name").fill("Alex · Design");
+  await page.getByLabel("Wallet address").fill(config.accounts[1]);
+  await page.getByRole("button", { name: "Save contact", exact: true }).click();
+  await page.reload();
+  await expect(page.getByText("Alex · Design", { exact: true })).toBeVisible();
+  await page.goto("/#/create");
+  await page.getByLabel("Saved recipient").selectOption(config.accounts[1]);
+  await expect(page.getByLabel("Recipient", { exact: true })).toHaveValue(
+    config.accounts[1],
+  );
+  await page.evaluate((account) => {
+    (window as any).testWallet.state.account = account;
+    (window as any).testWallet.emit("accountsChanged");
+  }, config.accounts[2]);
+  await page.goto("/#/contacts");
+  await expect(page.getByText("Alex · Design", { exact: true })).toHaveCount(0);
+});
+
+test("changing the connected recipient invalidates a previously generated request link", async ({
+  page,
+}) => {
+  await injectWallet(page);
+  await page.goto("/#/request");
+  await connect(page);
+  await page.getByLabel("Requested amount").fill("1");
+  await page
+    .getByRole("button", { name: "Create request link", exact: true })
+    .click();
+  await expect(page.getByLabel("Payment request link")).toBeVisible();
+  await page.evaluate((account) => {
+    (window as any).testWallet.state.account = account;
+    (window as any).testWallet.emit("accountsChanged");
+  }, config.accounts[1]);
+  await expect(page.getByLabel("Recipient wallet")).toHaveValue(
+    new RegExp(config.accounts[1], "i"),
+  );
+  await expect(page.getByLabel("Payment request link")).toHaveCount(0);
+});
+
+test("a pending batch survives refresh and confirms all streams only after mining", async ({
+  page,
+}) => {
+  await injectWallet(page);
+  await page.goto("/#/batch");
+  await connect(page);
+  await page
+    .getByLabel("Wallet address", { exact: true })
+    .nth(0)
+    .fill(config.accounts[1]);
+  await page
+    .getByLabel("Wallet address", { exact: true })
+    .nth(1)
+    .fill(config.accounts[2]);
+  await page.getByLabel("Amount · QMS", { exact: true }).nth(0).fill("1");
+  await page.getByLabel("Amount · QMS", { exact: true }).nth(1).fill("2");
+  await page
+    .getByRole("button", { name: "Review 2 payouts", exact: true })
+    .click();
+  await rpc("evm_setAutomine", [false]);
+  await page
+    .getByRole("button", { name: "Confirm in wallet", exact: true })
+    .click();
+  await expect(
+    page.getByText("Transaction submitted.", { exact: false }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByText("Transaction pending.", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("2 streams created.", { exact: false }),
+  ).toHaveCount(0);
+  await rpc("evm_mine");
+  await rpc("evm_setAutomine", [true]);
+  await expect(page).toHaveURL(/#\/streams$/);
+  await expect(
+    page.getByText("2 streams created.", { exact: false }),
+  ).toBeVisible();
+  await expect(page.locator(".stream-row")).toHaveCount(2);
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem("rill:v1:pending") ?? "[]").length,
+    ),
+  ).toBe(0);
+});
+
+test("wallet totals and incoming filters include streams beyond the first hundred", async ({
+  page,
+}) => {
+  for (let batch = 0; batch < 4; batch++) {
+    const hash = await rpc("eth_sendTransaction", [
+      {
+        from: config.accounts[0],
+        to: config.contract,
+        gas: "0xb71b00",
+        value: "0x15af1d78b58c40000",
+        data: encodeFunctionData({
+          abi: rillAbi,
+          functionName: "createStreams",
+          args: [
+            Array.from({ length: 25 }, () => ({
+              recipient: config.accounts[1],
+              amount: 1000000000000000000n,
+              duration: 60n,
+              label: "",
+            })),
+          ],
+        }),
+      },
+    ]);
+    await expect
+      .poll(
+        async () => (await rpc("eth_getTransactionReceipt", [hash]))?.status,
+      )
+      .toBe("0x1");
+  }
+  const hash = await rpc("eth_sendTransaction", [
+    {
+      from: config.accounts[1],
+      to: config.contract,
+      gas: "0x7a120",
+      value: "0xde0b6b3a7640000",
+      data: encodeFunctionData({
+        abi: rillAbi,
+        functionName: "createNamedStream",
+        args: [config.accounts[0], 60n, "Beyond the first page"],
+      }),
+    },
+  ]);
+  await expect
+    .poll(async () => (await rpc("eth_getTransactionReceipt", [hash]))?.status)
+    .toBe("0x1");
+  await injectWallet(page);
+  await page.goto("/");
+  await connect(page);
+  await expect(page.getByTestId("outgoing-total")).toContainText("100.00000");
+  await expect(
+    page.getByText("101 total payment records", { exact: true }),
+  ).toBeVisible();
+  await page.goto("/#/streams?filter=Incoming");
+  await expect(page.locator(".stream-row")).toHaveCount(1);
+  await expect(page.locator(".stream-row")).toContainText(
+    "Beyond the first page",
+  );
+  await page.goto("/#/streams?filter=Outgoing");
+  for (let index = 0; index < 4; index++)
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(
+    page.getByText("Page 5 · 100 streams", { exact: true }),
+  ).toBeVisible();
+  await page.evaluate((account) => {
+    (window as any).testWallet.state.account = account;
+    (window as any).testWallet.emit("accountsChanged");
+  }, config.accounts[1]);
+  await expect(
+    page.getByText("Page 1 · 1 streams", { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".stream-row")).toHaveCount(1);
+});
+
+test("the original V1 runtime remains usable while V2-only features explain setup", async ({
+  page,
+}) => {
+  const legacy = JSON.parse(
+    await readFile("tests/fixtures/rill-v1.json", "utf8"),
+  );
+  const hash = await rpc("eth_sendTransaction", [
+    { from: config.accounts[0], data: legacy.bytecode, gas: "0x4c4b40" },
+  ]);
+  await expect
+    .poll(async () => (await rpc("eth_getTransactionReceipt", [hash]))?.status)
+    .toBe("0x1");
+  const receipt = await rpc("eth_getTransactionReceipt", [hash]);
+  expect(receipt.status).toBe("0x1");
+  await injectWallet(page);
+  await page.goto(`/?contract=${receipt.contractAddress}#/create?trial=1`);
+  await connect(page);
+  await page
+    .getByRole("button", { name: "Review stream", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Confirm in wallet", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/streams\/1$/);
+  await expect(
+    page.getByRole("heading", { name: "Your first minute", exact: true }),
+  ).toBeVisible();
+  await page.evaluate(() => {
+    location.hash = "/batch";
+  });
+  await expect(
+    page.getByText("This deployment supports individual streams.", {
+      exact: false,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Review 2 payouts", exact: true }),
+  ).toBeDisabled();
+});
 test("approved first visit and missing-wallet flow render on desktop and mobile", async ({
   page,
 }) => {

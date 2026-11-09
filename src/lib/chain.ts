@@ -5,10 +5,9 @@ import { rillAbi, rillRuntimeHash } from "../contracts/rill";
 import { sameAddress } from "./domain";
 import type { StreamRow } from "./domain";
 
-export async function verifyContract(
-  address: string,
-  blockNumber?: bigint,
-): Promise<Address> {
+export const legacyRuntimeHash =
+  "0xf2c103e279572ac31806764e3b405b9e4c43651d3d4ac3356d818d0b21cc9b27";
+export async function inspectContract(address: string, blockNumber?: bigint) {
   if (!isAddress(address))
     throw new Error("The configured stream contract address is invalid.");
   const [network, code] = await Promise.all([
@@ -19,16 +18,27 @@ export async function verifyContract(
     throw new Error(
       "The RPC is on a different network. Transactions are disabled.",
     );
-  if (!code || keccak256(code) !== rillRuntimeHash)
+  const hash = code ? keccak256(code) : undefined;
+  const version =
+    hash === rillRuntimeHash ? 2 : hash === legacyRuntimeHash ? 1 : undefined;
+  if (!version)
     throw new Error(
       "This address is not a verified Rill contract on this network.",
     );
-  return address;
+  return { address, version };
+}
+
+export async function verifyContract(
+  address: string,
+  blockNumber?: bigint,
+): Promise<Address> {
+  return (await inspectContract(address, blockNumber)).address;
 }
 export async function readStream(
   address: Address,
   id: bigint,
   blockNumber: bigint,
+  version = 1,
 ): Promise<StreamRow> {
   const stream = await client.readContract({
     address,
@@ -37,7 +47,17 @@ export async function readStream(
     args: [id],
     blockNumber,
   });
-  return { ...stream, id };
+  const label =
+    version === 2
+      ? await client.readContract({
+          address,
+          abi: rillAbi,
+          functionName: "streamLabel",
+          args: [id],
+          blockNumber,
+        })
+      : "";
+  return { ...stream, id, label };
 }
 export type Snapshot = {
   blockNumber: bigint;
@@ -47,6 +67,7 @@ export type Snapshot = {
   count: bigint;
   detail?: StreamRow;
   verified?: Address;
+  version?: number;
 };
 export async function readSnapshot(
   contract: string,
@@ -67,8 +88,8 @@ export async function readSnapshot(
       streams: [],
       count: 0n,
     };
-  const address = await verifyContract(contract, block.number);
-  const [count, indexed, detail] = await Promise.all([
+  const { address, version } = await inspectContract(contract, block.number);
+  const [count, detail] = await Promise.all([
     wallet
       ? client.readContract({
           address,
@@ -78,23 +99,35 @@ export async function readSnapshot(
           blockNumber: block.number,
         })
       : 0n,
-    wallet
-      ? client.readContract({
-          address,
-          abi: rillAbi,
-          functionName: "streamsFor",
-          args: [wallet, BigInt(page * 20), 20n],
-          blockNumber: block.number,
-        })
-      : ([[], 0n] as const),
-    id !== undefined ? readStream(address, id, block.number) : undefined,
+    id !== undefined
+      ? readStream(address, id, block.number, version)
+      : undefined,
   ]);
+  const indexed: bigint[] = [];
+  if (wallet) {
+    const size = page < 0 ? 100n : 20n;
+    const start = page < 0 ? 0n : BigInt(page * 20);
+    const end = page < 0 ? count : start + size;
+    // Never use a single page as a wallet total. Every read is pinned to this block.
+    for (let cursor = start; cursor < end; cursor += size) {
+      const [ids] = await client.readContract({
+        address,
+        abi: rillAbi,
+        functionName: "streamsFor",
+        args: [wallet, cursor, size],
+        blockNumber: block.number,
+      });
+      indexed.push(...ids);
+    }
+  }
   const streams: StreamRow[] = [];
-  const ids = [...new Set(indexed[0])];
+  const ids = [...new Set(indexed)];
   for (let i = 0; i < ids.length; i += 5)
     streams.push(
       ...(await Promise.all(
-        ids.slice(i, i + 5).map((id) => readStream(address, id, block.number)),
+        ids
+          .slice(i, i + 5)
+          .map((id) => readStream(address, id, block.number, version)),
       )),
     );
   return {
@@ -105,6 +138,7 @@ export async function readSnapshot(
     count,
     detail,
     verified: address,
+    version,
   };
 }
 export type ActivityEvent = {

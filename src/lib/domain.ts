@@ -17,7 +17,7 @@ export type Stream = {
   endTime: bigint;
   cancelledAt: bigint;
 };
-export type StreamRow = Stream & { id: bigint };
+export type StreamRow = Stream & { id: bigint; label?: string };
 export function parseAmount(value: string): bigint {
   if (!/^\d+(\.\d{1,18})?$/.test(value.trim()))
     throw new Error("Enter a positive QMS amount with up to 18 decimals.");

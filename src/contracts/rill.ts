@@ -2,12 +2,27 @@
 export const rillAbi = [
   {
     "inputs": [],
+    "name": "DepositMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidBatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidDeposit",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "InvalidDuration",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidLabel",
     "type": "error"
   },
   {
@@ -202,6 +217,35 @@ export const rillAbi = [
         "internalType": "uint64",
         "name": "duration",
         "type": "uint64"
+      },
+      {
+        "internalType": "string",
+        "name": "label",
+        "type": "string"
+      }
+    ],
+    "name": "createNamedStream",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "streamId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "duration",
+        "type": "uint64"
       }
     ],
     "name": "createStream",
@@ -210,6 +254,47 @@ export const rillAbi = [
         "internalType": "uint256",
         "name": "streamId",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "duration",
+            "type": "uint64"
+          },
+          {
+            "internalType": "string",
+            "name": "label",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct RillStream.Payout[]",
+        "name": "items",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "createStreams",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
       }
     ],
     "stateMutability": "payable",
@@ -298,6 +383,25 @@ export const rillAbi = [
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "streamLabel",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "wallet",
         "type": "address"
@@ -344,4 +448,4 @@ export const rillAbi = [
   }
 ] as const;
 
-export const rillRuntimeHash = '0xf2c103e279572ac31806764e3b405b9e4c43651d3d4ac3356d818d0b21cc9b27' as const;
+export const rillRuntimeHash = '0xc1ac6dc9a1118b881e5066ce04c339dbc7f9592953e29dfc9c6b408e04942b20' as const;

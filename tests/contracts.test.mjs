@@ -35,6 +35,27 @@ const receiverArtifacts = Object.fromEntries(
 );
 let local, client, wallets, address, snapshot;
 const unit = parseEther("1");
+// Use the proposed interface so the pre-V2 contract fails by reverting, not by ABI lookup.
+const batchAbi = [
+  {
+    type: "function",
+    name: "createStreams",
+    stateMutability: "payable",
+    inputs: [
+      {
+        name: "items",
+        type: "tuple[]",
+        components: [
+          { name: "recipient", type: "address" },
+          { name: "amount", type: "uint256" },
+          { name: "duration", type: "uint64" },
+          { name: "label", type: "string" },
+        ],
+      },
+    ],
+    outputs: [{ name: "ids", type: "uint256[]" }],
+  },
+];
 const read = (functionName, args = []) =>
   client.readContract({ address, abi: artifact.abi, functionName, args });
 const stream = (id = 1n) => read("getStream", [id]);
@@ -150,15 +171,13 @@ before(async () => {
   local = await startLocalChain();
   client = local.client;
   const accounts = await client.request({ method: "eth_accounts" });
-  wallets = accounts
-    .slice(0, 3)
-    .map((account) =>
-      createWalletClient({
-        account,
-        chain: local.chain,
-        transport: http(local.rpcUrl),
-      }),
-    );
+  wallets = accounts.slice(0, 3).map((account) =>
+    createWalletClient({
+      account,
+      chain: local.chain,
+      transport: http(local.rpcUrl),
+    }),
+  );
   address = await deploy(artifact);
 });
 beforeEach(async () => {
@@ -176,6 +195,130 @@ test("deployed runtime matches the exported compiled identity", async () => {
     keccak256(await client.getBytecode({ address })),
     artifact.runtimeHash,
   );
+});
+
+test("batch payments create independent named streams with the original sender", async () => {
+  const items = [
+    {
+      recipient: wallets[1].account.address,
+      amount: unit,
+      duration: 60n,
+      label: "Design retainer",
+    },
+    {
+      recipient: wallets[2].account.address,
+      amount: 2n * unit,
+      duration: 120n,
+      label: "Development",
+    },
+  ];
+  const receipt = await transaction(
+    wallets[0],
+    address,
+    batchAbi,
+    "createStreams",
+    [items],
+    3n * unit,
+  );
+  assert.equal(receipt.logs.length, 2);
+  const first = await stream(1n),
+    second = await stream(2n);
+  assert.equal(
+    first.sender.toLowerCase(),
+    wallets[0].account.address.toLowerCase(),
+  );
+  assert.equal(
+    second.recipient.toLowerCase(),
+    wallets[2].account.address.toLowerCase(),
+  );
+  assert.equal(first.startTime, second.startTime);
+  assert.equal(await read("streamLabel", [1n]), "Design retainer");
+  assert.equal(await read("streamLabel", [2n]), "Development");
+  assert.equal(await read("streamCount", [wallets[0].account.address]), 2n);
+  await nextAt(first.startTime + 30n);
+  await send(wallets[1], "withdraw", [1n]);
+  assert.equal((await stream(1n)).withdrawn, unit / 2n);
+  await send(wallets[1], "withdraw", [2n], 0n, false);
+  await send(wallets[0], "cancel", [2n]);
+  await conserved(1n);
+  await conserved(2n);
+  assert.equal((await stream(1n)).cancelledAt, 0n);
+});
+
+test("batch validation rolls back every stream and requires the exact deposit", async () => {
+  const good = {
+    recipient: wallets[1].account.address,
+    amount: unit,
+    duration: 60n,
+    label: "Contributor",
+  };
+  for (const invalid of [
+    { ...good, recipient: zeroAddress },
+    { ...good, amount: 0n },
+    { ...good, duration: 59n },
+    { ...good, duration: 31536001n },
+    { ...good, label: "é".repeat(41) },
+  ]) {
+    await transaction(
+      wallets[0],
+      address,
+      batchAbi,
+      "createStreams",
+      [[good, invalid]],
+      good.amount + invalid.amount,
+      false,
+    );
+    assert.equal(await read("streamCount", [wallets[0].account.address]), 0n);
+    assert.equal(await client.getBalance({ address }), 0n);
+  }
+  for (const value of [unit - 1n, unit + 1n])
+    await transaction(
+      wallets[0],
+      address,
+      batchAbi,
+      "createStreams",
+      [[good]],
+      value,
+      false,
+    );
+  await transaction(
+    wallets[0],
+    address,
+    batchAbi,
+    "createStreams",
+    [[]],
+    0n,
+    false,
+  );
+  await transaction(
+    wallets[0],
+    address,
+    batchAbi,
+    "createStreams",
+    [Array(26).fill(good)],
+    unit * 26n,
+    false,
+  );
+  assert.equal(await read("streamCount", [wallets[0].account.address]), 0n);
+});
+
+test("named streams validate byte length and legacy creation remains available", async () => {
+  await send(
+    wallets[0],
+    "createNamedStream",
+    [wallets[1].account.address, 60n, "é".repeat(40)],
+    unit,
+  );
+  assert.equal(await read("streamLabel", [1n]), "é".repeat(40));
+  await send(
+    wallets[0],
+    "createNamedStream",
+    [wallets[1].account.address, 60n, "é".repeat(41)],
+    unit,
+    false,
+  );
+  await create();
+  assert.equal(await read("streamLabel", [2n]), "");
 });
 
 // Catches incorrect slopes, inclusion of prior withdrawals, and wall-clock calculations.

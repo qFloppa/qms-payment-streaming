@@ -6,6 +6,7 @@ import "@fontsource/instrument-serif/latin-400.css";
 import "./styles/shell.css";
 import "./styles/pages.css";
 import "./styles/dialogs.css";
+import "./styles/workspace.css";
 import App from "./App";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

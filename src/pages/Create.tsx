@@ -21,20 +21,53 @@ import {
   PageHeading,
 } from "../components/Primitives";
 import { ReviewDialog } from "../components/ReviewDialog";
+import { ContactPicker, V2Notice } from "../components/WorkspaceFields";
+import {
+  parsePaymentRequest,
+  templates,
+  validateLabel,
+} from "../lib/workspace";
 
-export function Create({ trial }: { trial: boolean }) {
+export function Create({
+  trial,
+  search = "",
+}: {
+  trial: boolean;
+  search?: string;
+}) {
+  const [prefill] = useState(() => {
+    try {
+      return {
+        request: parsePaymentRequest(new URLSearchParams(search)),
+        error: "",
+      };
+    } catch (issue) {
+      return { request: undefined, error: (issue as Error).message };
+    }
+  });
+  const request = prefill.request;
   const { wallet, contract, setWalletOpen, setFaucetOpen, prepare } = useRill();
   const { data, error: chainError } = useSnapshot(contract, wallet.account);
-  const [self, setSelf] = useState(trial);
-  const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState(trial ? "1.00" : "");
-  const [duration, setDuration] = useState(60);
-  const [custom, setCustom] = useState(false);
+  const [self, setSelf] = useState(trial && !request);
+  const [recipient, setRecipient] = useState(request?.recipient ?? "");
+  const [label, setLabel] = useState(request?.label ?? "");
+  const [amount, setAmount] = useState(
+    request?.amount ?? (trial ? "1.00" : ""),
+  );
+  const [duration, setDuration] = useState(request?.duration ?? 60);
+  const [custom, setCustom] = useState(
+    !!request && ![60, 3600, 86400].includes(request.duration),
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState<Review>();
   const address = self ? (wallet.account ?? "") : recipient.trim();
+  const requestError =
+    prefill.error ||
+    (request && request.chainId !== chain.id
+      ? "This request is for a different network. Ask for a link on the current Rill network."
+      : "");
   let value = 0n;
   try {
     value = parseAmount(amount);
@@ -43,6 +76,10 @@ export function Create({ trial }: { trial: boolean }) {
   }
   async function reviewStream() {
     setError("");
+    if (requestError) {
+      setError(requestError);
+      return;
+    }
     if (!wallet.account) {
       setWalletOpen(true);
       return;
@@ -58,6 +95,7 @@ export function Create({ trial }: { trial: boolean }) {
           recipient: address as Address,
           duration,
           value: parseAmount(amount),
+          label: validateLabel(label),
         }),
       );
     } catch (error) {
@@ -72,6 +110,41 @@ export function Create({ trial }: { trial: boolean }) {
         title="Create a stream"
         subtitle="Set the payment. Let time take care of the rest."
       />
+      {requestError ? (
+        <ErrorNotice message={requestError} />
+      ) : request ? (
+        <div className="notice request-notice">
+          <span>
+            Payment request · Review the recipient and terms before funding.
+            This link is an unsigned proposal, and you can edit the terms below.
+          </span>
+        </div>
+      ) : null}
+      {!request && !trial ? (
+        <div className="template-row">
+          <span className="small muted">START WITH</span>
+          {templates.map((template) => (
+            <button
+              className="template-button"
+              type="button"
+              key={template.duration}
+              onClick={() => {
+                setDuration(template.duration);
+                setCustom(![60, 3600, 86400].includes(template.duration));
+                if (template.duration === 60) {
+                  setSelf(true);
+                  setAmount("1.00");
+                } else {
+                  setSelf(false);
+                  if (data?.version === 2) setLabel(template.label);
+                }
+              }}
+            >
+              {template.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div className="create-layout">
         <form
           onSubmit={(event) => {
@@ -119,12 +192,32 @@ export function Create({ trial }: { trial: boolean }) {
             <p id="recipient-help" className="small muted">
               You can send a stream to yourself to try it out.
             </p>
+            <ContactPicker
+              onSelect={(value) => {
+                setSelf(false);
+                setRecipient(value);
+              }}
+            />
             {errors.recipient ? (
               <p id="recipient-error" className="field-error" role="alert">
                 {errors.recipient}
               </p>
             ) : null}
           </div>
+          {!trial || request ? (
+            <div className="field">
+              <label htmlFor="stream-name">Stream name</label>
+              <input
+                id="stream-name"
+                value={label}
+                onChange={(event) => setLabel(event.target.value)}
+                placeholder="November design retainer"
+              />
+              <p className="small muted">
+                Optional. Names are public on chain.
+              </p>
+            </div>
+          ) : null}
           <div className="field">
             <div className="row-between">
               <label htmlFor="amount">Total payment</label>
@@ -216,8 +309,13 @@ export function Create({ trial }: { trial: boolean }) {
           </div>
           {wallet.account && !contract ? <ContractNotice /> : null}
           {chainError ? <ErrorNotice message={chainError} /> : null}
+          {data?.version === 1 && label ? <V2Notice /> : null}
           {error ? <ErrorNotice message={error} /> : null}
-          <button type="submit" className="primary" disabled={loading}>
+          <button
+            type="submit"
+            className="primary"
+            disabled={loading || !!requestError}
+          >
             {loading
               ? "Estimating network fee…"
               : wallet.account

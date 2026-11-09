@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useRill } from "../context/RillContext";
 import { useSnapshot } from "../hooks/useSnapshot";
+import { useContacts } from "../hooks/useContacts";
 import {
   accounting,
   formatAmount,
@@ -15,11 +16,30 @@ import {
   PageHeading,
 } from "../components/Primitives";
 
-export function Streams() {
+export function Streams({ initialFilter = "All" }: { initialFilter?: string }) {
   const { wallet, contract, setWalletOpen } = useRill();
   const [page, setPage] = useState(0);
-  const [filter, setFilter] = useState("All");
-  const { data, error, refresh } = useSnapshot(contract, wallet.account, page);
+  const [filter, setFilter] = useState(
+    ["Incoming", "Outgoing"].includes(initialFilter) ? initialFilter : "All",
+  );
+  const { data, error, refresh } = useSnapshot(contract, wallet.account, -1);
+  const { contacts } = useContacts(wallet.account);
+  const filtered =
+    data?.streams
+      .filter(
+        (stream) =>
+          filter === "All" ||
+          sameAddress(
+            wallet.account,
+            filter === "Incoming" ? stream.recipient : stream.sender,
+          ),
+      )
+      .slice()
+      .sort((a, b) => (a.id > b.id ? -1 : 1)) ?? [];
+  const currentPage = Math.min(
+    page,
+    Math.max(0, Math.ceil(filtered.length / 20) - 1),
+  );
   return (
     <>
       <PageHeading
@@ -63,22 +83,18 @@ export function Streams() {
               <button
                 aria-pressed={filter === item}
                 key={item}
-                onClick={() => setFilter(item)}
+                onClick={() => {
+                  setFilter(item);
+                  setPage(0);
+                }}
               >
                 {item}
               </button>
             ))}
           </div>
           <div className="streams-table">
-            {data.streams
-              .filter(
-                (stream) =>
-                  filter === "All" ||
-                  sameAddress(
-                    wallet.account,
-                    filter === "Incoming" ? stream.recipient : stream.sender,
-                  ),
-              )
+            {filtered
+              .slice(currentPage * 20, (currentPage + 1) * 20)
               .map((stream) => {
                 const incoming = sameAddress(stream.recipient, wallet.account);
                 const self = sameAddress(stream.sender, stream.recipient);
@@ -97,11 +113,18 @@ export function Streams() {
                     </span>
                     <div>
                       <strong>
-                        {self
-                          ? "You to you"
-                          : shortAddress(
+                        {stream.label ||
+                          contacts.find((contact) =>
+                            sameAddress(
+                              contact.address,
                               incoming ? stream.sender : stream.recipient,
-                            )}
+                            ),
+                          )?.name ||
+                          (self
+                            ? "You to you"
+                            : shortAddress(
+                                incoming ? stream.sender : stream.recipient,
+                              ))}
                       </strong>
                       <span className="small muted">
                         Stream #{stream.id.toString()} ·{" "}
@@ -132,24 +155,24 @@ export function Streams() {
           <div className="pagination">
             <button
               className="secondary"
-              disabled={page === 0}
-              onClick={() => setPage((value) => value - 1)}
+              disabled={currentPage === 0}
+              onClick={() => setPage(currentPage - 1)}
             >
               Previous
             </button>
             <span className="small muted">
-              Page {page + 1} · {data.count.toString()} streams
+              Page {currentPage + 1} · {filtered.length} streams
             </span>
             <button
               className="secondary"
-              disabled={BigInt((page + 1) * 20) >= data.count}
-              onClick={() => setPage((value) => value + 1)}
+              disabled={(currentPage + 1) * 20 >= filtered.length}
+              onClick={() => setPage(currentPage + 1)}
             >
               Next
             </button>
           </div>
           <p className="small muted">
-            Filters apply to this page. Self streams appear once.
+            Filters cover all your streams. Self streams appear once.
           </p>
         </>
       )}

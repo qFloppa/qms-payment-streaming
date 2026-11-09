@@ -11,7 +11,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test tests/domain.test.ts tests/wallet.test.ts",
+    "test": "node --import tsx --test tests/domain.test.ts tests/wallet.test.ts tests/workspace.test.ts",
     "test:e2e": "npm run contracts:compile && playwright test",
     "preview": "vite preview --host 0.0.0.0"
   },

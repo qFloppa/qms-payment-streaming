@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatUnits } from "viem";
 import type { ReactNode } from "react";
 import { useRill } from "../context/RillContext";
 import type { Review } from "../context/RillContext";
@@ -26,14 +27,17 @@ export function ReviewDialog({
         ? "Review withdrawal"
         : review.action === "deploy"
           ? "Deploy Rill"
-          : "Review your stream";
+          : review.action === "batch"
+            ? `Review ${review.payouts!.length} payouts`
+            : "Review your stream";
   return (
     <Dialog title={title} onClose={onClose}>
       {review.action === "create" ? (
         <>
           <p className="review-amount">
-            {formatAmount(review.value ?? 0n)} <span>QMS</span>
+            {formatUnits(review.value ?? 0n, 18)} <span>QMS</span>
           </p>
+          {review.label ? <p className="review-name">{review.label}</p> : null}
           <dl className="facts">
             <div>
               <dt>Recipient</dt>
@@ -47,6 +51,34 @@ export function ReviewDialog({
             </div>
           </dl>
           <p className="small muted">Starts when your transaction confirms.</p>
+        </>
+      ) : null}
+      {review.action === "batch" ? (
+        <>
+          <p className="review-amount">
+            {formatAmount(review.value ?? 0n)} <span>QMS total</span>
+          </p>
+          <p className="small muted">
+            One atomic transaction. Every recipient gets an independent stream.
+          </p>
+          <ol className="review-payouts">
+            {review.payouts!.map((payout, index) => (
+              <li key={index}>
+                <div>
+                  <strong>{payout.label || `Recipient ${index + 1}`}</strong>
+                  <strong>{formatUnits(payout.amount, 18)} QMS</strong>
+                </div>
+                <span className="full-address">{payout.recipient}</span>
+                <span className="small muted">
+                  Unlocks over {durationLabel(Number(payout.duration))}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="small muted">
+            Exact total: {formatUnits(review.value ?? 0n, 18)} QMS. All streams
+            start when this transaction confirms.
+          </p>
         </>
       ) : null}
       {children}

@@ -20,7 +20,7 @@ import { rillAbi } from "../contracts/rill";
 import { useWallet } from "../hooks/useWallet";
 import type { Provider } from "../hooks/useWallet";
 import { chain, client } from "../lib/config";
-import { verifyContract } from "../lib/chain";
+import { verifyContract, inspectContract } from "../lib/chain";
 import { sameAddress } from "../lib/domain";
 import {
   assertWalletContext,
@@ -39,6 +39,13 @@ export type Intent = {
   duration?: number;
   streamId?: bigint;
   bytecode?: Hex;
+  label?: string;
+  payouts?: {
+    recipient: Address;
+    amount: bigint;
+    duration: bigint;
+    label: string;
+  }[];
 };
 export type Review = Intent & {
   account: Address;
@@ -107,7 +114,10 @@ function useRillState() {
         if (!sameAddress(log.address, item.contract)) return false;
         try {
           const event = decodeEventLog({ abi: rillAbi, ...log });
-          if (item.action === "create" && event.eventName === "StreamCreated")
+          if (
+            (item.action === "create" || item.action === "batch") &&
+            event.eventName === "StreamCreated"
+          )
             return sameAddress(event.args.sender, item.wallet);
           if (item.action === "withdraw" && event.eventName === "Withdrawal")
             return (
@@ -124,7 +134,30 @@ function useRillState() {
         }
         return false;
       });
+      let exactIntent = true;
+      if (item.data) {
+        const transaction = await client.getTransaction({
+          hash: receipt.transactionHash,
+        });
+        exactIntent =
+          transaction.input === item.data &&
+          transaction.value.toString() === item.value;
+      }
+      const batchCount = receipt.logs.filter((log) => {
+        if (!sameAddress(log.address, item.contract)) return false;
+        try {
+          const event = decodeEventLog({ abi: rillAbi, ...log });
+          return (
+            event.eventName === "StreamCreated" &&
+            sameAddress(event.args.sender, item.wallet)
+          );
+        } catch {
+          return false;
+        }
+      }).length;
       const matches =
+        exactIntent &&
+        (item.action !== "batch" || batchCount === item.count) &&
         sameAddress(receipt.from, item.wallet) &&
         (item.action === "deploy"
           ? !!receipt.contractAddress
@@ -141,17 +174,29 @@ function useRillState() {
         state: failed ? "failed" : "confirmed",
         message: failed
           ? "The transaction reverted or was cancelled in your wallet. No action was completed."
-          : item.action === "create"
-            ? "Stream created. Your payment is now unlocking."
-            : item.action === "withdraw"
-              ? "Withdrawal confirmed. QMS is back in the recipient’s wallet."
-              : item.action === "cancel"
-                ? "Stream cancelled. Unlocked QMS remains available to the recipient."
-                : "Rill deployed and verified. Your app is ready to share.",
+          : item.action === "batch"
+            ? `${batchCount} streams created. Your contributors’ payments are now unlocking.`
+            : item.action === "create"
+              ? "Stream created. Your payment is now unlocking."
+              : item.action === "withdraw"
+                ? "Withdrawal confirmed. QMS is back in the recipient’s wallet."
+                : item.action === "cancel"
+                  ? "Stream cancelled. Unlocked QMS remains available to the recipient."
+                  : "Rill deployed and verified. Your app is ready to share.",
         hash: receipt.transactionHash,
       });
       storePending(pendingRef.current.filter((tx) => tx.hash !== item.hash));
       setReceiptVersion((value) => value + 1);
+      if (!failed && item.action === "batch") {
+        const accounts = await wallet.selected?.provider.request({
+          method: "eth_accounts",
+        });
+        if (
+          sameAddress(accounts?.[0], item.wallet) &&
+          sameAddress(contractRef.current, item.contract)
+        )
+          location.hash = "/streams";
+      }
       if (!failed && item.action === "create") {
         for (const log of receipt.logs) {
           if (!sameAddress(log.address, item.contract)) continue;
@@ -272,20 +317,42 @@ function useRillState() {
       throw new Error(
         "Rill is not deployed yet. Open the setup link to deploy a stream contract.",
       );
+    if (intent.action === "batch" || intent.label) {
+      if ((await inspectContract(contract)).version !== 2)
+        throw new Error(
+          "Names and batch payouts need Rill V2. Open setup to deploy it.",
+        );
+    }
     const data =
-      intent.action === "create"
+      intent.action === "batch"
         ? encodeFunctionData({
             abi: rillAbi,
-            functionName: "createStream",
-            args: [intent.recipient!, BigInt(intent.duration!)],
+            functionName: "createStreams",
+            args: [intent.payouts!],
           })
-        : intent.action === "deploy"
-          ? intent.bytecode!
-          : encodeFunctionData({
-              abi: rillAbi,
-              functionName: intent.action,
-              args: [intent.streamId!],
-            });
+        : intent.action === "create"
+          ? intent.label
+            ? encodeFunctionData({
+                abi: rillAbi,
+                functionName: "createNamedStream",
+                args: [
+                  intent.recipient!,
+                  BigInt(intent.duration!),
+                  intent.label,
+                ],
+              })
+            : encodeFunctionData({
+                abi: rillAbi,
+                functionName: "createStream",
+                args: [intent.recipient!, BigInt(intent.duration!)],
+              })
+          : intent.action === "deploy"
+            ? intent.bytecode!
+            : encodeFunctionData({
+                abi: rillAbi,
+                functionName: intent.action,
+                args: [intent.streamId!],
+              });
     const context = {
       ...intent,
       data,
@@ -350,6 +417,11 @@ function useRillState() {
           contract: review.contract,
           wallet: review.account,
           action: review.action,
+          data: review.data,
+          value: (review.value ?? 0n).toString(),
+          ...(review.action === "batch"
+            ? { count: review.payouts!.length }
+            : {}),
           submittedAt: Date.now(),
           ...(review.streamId === undefined
             ? {}

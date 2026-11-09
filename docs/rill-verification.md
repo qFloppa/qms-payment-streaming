@@ -1,6 +1,24 @@
 # Rill implementation and verification
 
-This document records the original **V1** release. The current source builds **V2**, adding named streams and atomic contributor payouts. V2 has a different runtime hash and is not yet deployed on QMS Testnet; see the current [README](../README.md) and [builder notes](builder-program.md). The V1 deployment and source-verification evidence below remain historical evidence for that original contract.
+The current **V2** contract is deployed on QMS Testnet and its source and ABI are published on QMSScan. The V2 evidence is recorded first; the original V1 release notes remain below for historical reference.
+
+## V2 deployment and explorer verification
+
+- Contract: [`0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc`](https://testnet.qmsscan.io/address/0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc?tab=contract).
+- Deployment: [`0x2a6503b70c60216aaf64ec7ed6a00abaa074d523d3835690b51d15ca6be60f07`](https://testnet.qmsscan.io/tx/0x2a6503b70c60216aaf64ec7ed6a00abaa074d523d3835690b51d15ca6be60f07), block `316510`, November 9, 2026 at `22:48:02 UTC`.
+- Network: QMS Testnet, chain ID `19480`.
+- Runtime hash: `0xc1ac6dc9a1118b881e5066ce04c339dbc7f9592953e29dfc9c6b408e04942b20`.
+- Compiler: `v0.8.38+commit.1835d247`; EVM target `paris`; optimizer enabled with 200 runs.
+- Metadata: `bytecodeHash: "none"`, `appendCBOR: false`; no constructor arguments or external libraries. Source license: MIT.
+- QMSScan verification completed at `2026-11-09T22:53:19.409336Z`, using the Solidity standard JSON input endpoint and the exact `contracts/RillStream.sol` source.
+
+A fresh local compilation matched the artifact, the deployment transaction's creation input, and the deployed runtime bytecode exactly. Both public RPC and explorer bytecode were checked. The RPC receipt confirms successful creation at the specified address. QMSScan's published source matches the repository, and its published contract name, compiler version, optimizer, EVM target, and ABI were checked.
+
+The explorer reports `is_verified: true`, `is_partially_verified: true`, and **Contract source code verified (partial match)**. As with V1, this build deliberately omits CBOR compiler metadata, so Blockscout labels the match partial even though the complete creation and runtime bytecode match. This is source verification, not a security audit.
+
+The example environment and local build now select V2. Previously funded V1 streams remain accessible through their original contract URL. Hosted builds with an explicitly configured V1 environment address must select V2 and rebuild.
+
+## Original V1 release
 
 Direction A remains the approved design. Implementation resumed on `feat/rill-app` from `1fe7d97044c9319b6282f5f86a84e56a4417d55b`. Work was performed solo as requested; the plan's independent-agent review was replaced by a separate manual review of contract invariants, wallet state, receipt handling, data queries, and rendering.
 

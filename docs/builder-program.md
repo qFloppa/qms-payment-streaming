@@ -13,7 +13,7 @@ Rill currently uses conventional EVM wallet signing. It does not claim to implem
 ## Evidence available
 
 - Original V1 contract on QMS Testnet: `0x5AB83339041a650214D7D1086c4f8dD428701BCE`, with published source and exact bytecode comparison documented in `docs/rill-verification.md`.
-- V2 implementation, generated deployment artifact, CI workflow, local-chain contract tests, and browser tests. V2 still requires a QMS Testnet wallet deployment and its own source verification.
+- V2 contract on QMS Testnet: [`0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc`](https://testnet.qmsscan.io/address/0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc?tab=contract). Source and ABI are verified with the explorer's partial-match label; full creation and runtime bytecode match a fresh compilation exactly. The generated artifact, CI workflow, local-chain contract tests, and browser tests are in the repository.
 - Working flows for batch funding, request-to-stream funding, independent withdrawals, cancellation, receipt recovery after refresh, and legacy deployment compatibility.
 - No external pilot users or adoption metrics have been established in this work. Local test accounts and self-directed trials are not customer traction.
 

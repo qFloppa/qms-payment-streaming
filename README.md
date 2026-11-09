@@ -2,9 +2,9 @@
 
 Contributor payments on QMS. Fund your team in one transaction, share payment requests, and let each recipient withdraw as their payment unlocks.
 
-**V2 is implemented and tested locally. A new QMS Testnet deployment still needs a wallet signature.** The existing deployment below is V1 and remains supported for individual streams. Open **Deployment setup** (`/#/setup`) to deploy V2, then use the verified share URL or set its address in your hosted build. [Builder submission notes and 90-day plan](docs/builder-program.md).
+**V2 is deployed on QMS Testnet with source and ABI verified on QMSScan.** The example configuration selects this deployment, including named streams and atomic contributor payouts. QMSScan labels verification **partial match** because compiler metadata was omitted; the complete creation and runtime bytecode match the compiled source exactly. [Builder submission notes and 90-day plan](docs/builder-program.md).
 
-[Contract on QMSScan](https://testnet.qmsscan.io/address/0x5AB83339041a650214D7D1086c4f8dD428701BCE?tab=contract) · [Testnet faucet](https://faucet.testnet.qms.finance) · [Verification notes](docs/rill-verification.md)
+[V2 contract on QMSScan](https://testnet.qmsscan.io/address/0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc?tab=contract) · [Testnet faucet](https://faucet.testnet.qms.finance) · [Verification notes](docs/rill-verification.md)
 
 ![Rill's original first-visit design](docs/images/rill-desktop.png)
 
@@ -24,7 +24,7 @@ Contributor payments on QMS. Fund your team in one transaction, share payment re
 
 Rill is a static React app backed by an immutable Solidity contract. It uses native QMS, so token approvals are unnecessary. The contract has no administrator, upgrade mechanism, or protocol fee. All connected views read chain data; the first-visit example is labeled as a preview.
 
-## Existing V1 deployment
+## V2 deployment
 
 | Field           | Value                                                                                                                                      |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -32,13 +32,13 @@ Rill is a static React app backed by an immutable Solidity contract. It uses nat
 | Chain ID        | `19480` (`0x4c18`)                                                                                                                         |
 | Native currency | QMS, 18 decimals                                                                                                                           |
 | RPC             | `https://rpc.testnet.qms.finance`                                                                                                          |
-| Contract        | [`0x5AB83339041a650214D7D1086c4f8dD428701BCE`](https://testnet.qmsscan.io/address/0x5AB83339041a650214D7D1086c4f8dD428701BCE?tab=contract) |
-| Deployment      | [Transaction on QMSScan](https://testnet.qmsscan.io/tx/0xe6dc9cc35e076d447725ba2453eaaa50435f8342fa0054a1b0ec79b5dddac608)                 |
-| Source          | [Original V1 source](https://github.com/qFloppa/qms-payment-streaming/blob/18f0100/contracts/RillStream.sol)                               |
+| Contract        | [`0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc`](https://testnet.qmsscan.io/address/0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc?tab=contract) |
+| Deployment      | [Transaction on QMSScan](https://testnet.qmsscan.io/tx/0x2a6503b70c60216aaf64ec7ed6a00abaa074d523d3835690b51d15ca6be60f07)                 |
+| Source          | [`contracts/RillStream.sol`](contracts/RillStream.sol)                                                                                     |
 
-Source and ABI are published on QMSScan. The explorer reports **verified (partial match)** because the build omits compiler metadata. Both creation and runtime bytecode were independently compared with the compiled artifact and match exactly. See [compiler settings and verification evidence](docs/rill-verification.md#qms-testnet-deployment).
+Source and ABI are published on QMSScan. The explorer reports **verified (partial match)** because the build omits compiler metadata. Both creation and runtime bytecode were independently compared with the compiled artifact and match exactly. See [compiler settings and verification evidence](docs/rill-verification.md#v2-deployment-and-explorer-verification).
 
-That verification refers to the original V1 source, archived at commit `18f0100`; the current `contracts/RillStream.sol` builds V2. The client accepts both known runtime hashes and only enables V2 calls on V2 contracts. Old funds remain at the original address; a new deployment does not migrate balances.
+The original [V1 deployment](https://testnet.qmsscan.io/address/0x5AB83339041a650214D7D1086c4f8dD428701BCE?tab=contract) remains supported, with its source archived at commit `18f0100`. The client accepts both known runtime hashes and only enables V2 calls on V2 contracts. Old funds remain at the original address; the V2 deployment does not migrate balances.
 
 Expected V2 runtime hash: `0xc1ac6dc9a1118b881e5066ce04c339dbc7f9592953e29dfc9c6b408e04942b20`.
 
@@ -72,10 +72,10 @@ Outside local mode, the app always uses QMS Testnet and its configured public RP
 A `?contract=0x…` query parameter overrides the build configuration. Otherwise, the app uses a nonempty environment address, then the address saved for that chain in browser storage. Put the query **before** the hash route, for example:
 
 ```text
-http://localhost:5173/?contract=0x5AB83339041a650214D7D1086c4f8dD428701BCE#/
+http://localhost:5173/?contract=0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc#/
 ```
 
-Every selected address must match Rill's compiled runtime hash before fund transactions are enabled. Restart Vite after changing `.env.local`; rebuild a hosted site after changing its build environment. All `VITE_*` values are public client configuration.
+Every selected address must match a supported Rill runtime hash before fund transactions are enabled. Restart Vite after changing `.env.local`; rebuild a hosted site after changing its build environment. All `VITE_*` values are public client configuration.
 
 ## Build and host
 
@@ -137,14 +137,14 @@ Configure a local wallet for that chain using a disposable Anvil account, remove
 
 ### Deploy another contract
 
-The existing QMS Testnet deployment supports V1 features. To enable V2:
+The published V2 deployment is ready to use. To create another instance:
 
 1. Open `/#/setup`, connect your wallet, and select the intended network.
 2. Fund the wallet with native currency for deployment fees.
 3. Select **Review deployment**, then confirm in your wallet.
 4. Wait for the receipt and runtime-code check, then copy the shareable URL.
 
-The setup success panel explicitly confirms V2. The shareable URL selects the new address; configure `VITE_STREAM_CONTRACT_ADDRESS` and rebuild your hosted site to make it the default for other visitors. Existing V1 links continue to work. New deployment source verification must use the current V2 compiler input/artifact; the V1 explorer verification does not apply to V2.
+The setup success panel explicitly confirms V2. The shareable URL selects the new address; configure `VITE_STREAM_CONTRACT_ADDRESS` and rebuild your hosted site to make it the default for other visitors. Existing V1 links continue to work. Separate deployments require their own explorer source verification with the current V2 compiler input/artifact.
 
 An optional `npm run deploy` command accepts `RILL_RPC_URL` and `RILL_PRIVATE_KEY` through the local process environment. It defaults to QMS Testnet and rejects unexpected chains. Disposable unlocked Anvil accounts require `RILL_ALLOW_LOCAL_CHAIN=true` and `RILL_LOCAL_ACCOUNT` with a loopback RPC. Wallet keys belong only in the wallet or local process environment, never in `VITE_*` variables or committed files.
 

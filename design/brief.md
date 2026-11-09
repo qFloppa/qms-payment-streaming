@@ -1,6 +1,6 @@
 # QMS payment streaming — design brief
 
-Status: two visual directions are ready for selection. Eight editable screens are saved in `design/explorations.pen`; readable exports and the comparison index are in `design/exports` and `design/review.md`. The application and contracts have not been implemented.
+Status: **Direction A selected by the user.** Implementation is in progress on `feat/rill-app`. The four A screens in `design/explorations.pen` and `design/exports` are the visual references. Direction B remains an archived exploration.
 
 ## Product
 

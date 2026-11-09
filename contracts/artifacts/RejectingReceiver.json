@@ -1,0 +1,257 @@
+{
+  "contractName": "RejectingReceiver",
+  "sourceName": "contracts/test/Receivers.sol",
+  "compiler": "0.8.38+commit.1835d247.Emscripten.clang",
+  "evmVersion": "paris",
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "metadata": {
+      "bytecodeHash": "none",
+      "appendCBOR": false
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode.object",
+          "evm.deployedBytecode.object",
+          "metadata"
+        ]
+      }
+    }
+  },
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "claim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "close",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "duration",
+          "type": "uint64"
+        }
+      ],
+      "name": "open",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "reject",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "value",
+          "type": "bool"
+        }
+      ],
+      "name": "setReject",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "bytecode": "0x60806040526000805460ff19166001179055348015601c57600080fd5b5061034c8061002c6000396000f3fe60806040526004361061004e5760003560e01c806316f52455146100b15780634dc415de146100df578063aad3ec961461010d578063e49280cb1461012d578063fec9988c1461014d57600080fd5b366100ac5760005460ff16156100aa5760405162461bcd60e51b815260206004820152601a60248201527f72656365697665722072656a6563746564207472616e73666572000000000000604482015260640160405180910390fd5b005b600080fd5b3480156100bd57600080fd5b506100aa6100cc366004610270565b6000805460ff1916911515919091179055565b3480156100eb57600080fd5b506000546100f99060ff1681565b604051901515815260200160405180910390f35b34801561011957600080fd5b506100aa6101283660046102b5565b610160565b34801561013957600080fd5b506100aa6101483660046102b5565b6101bf565b6100aa61015b3660046102df565b6101ec565b604051632e1a7d4d60e01b8152600481018290526001600160a01b03831690632e1a7d4d906024015b600060405180830381600087803b1580156101a357600080fd5b505af11580156101b7573d6000803e3d6000fd5b505050505050565b6040516340e58ee560e01b8152600481018290526001600160a01b038316906340e58ee590602401610189565b604051630481752f60e11b81526001600160a01b03838116600483015267ffffffffffffffff83166024830152841690630902ea5e90349060440160206040518083038185885af1158015610245573d6000803e3d6000fd5b50505050506040513d601f19601f8201168201806040525081019061026a9190610333565b50505050565b60006020828403121561028257600080fd5b8135801515811461029257600080fd5b9392505050565b80356001600160a01b03811681146102b057600080fd5b919050565b600080604083850312156102c857600080fd5b6102d183610299565b946020939093013593505050565b6000806000606084860312156102f457600080fd5b6102fd84610299565b925061030b60208501610299565b9150604084013567ffffffffffffffff8116811461032857600080fd5b809150509250925092565b60006020828403121561034557600080fd5b505191905056",
+  "deployedBytecode": "0x60806040526004361061004e5760003560e01c806316f52455146100b15780634dc415de146100df578063aad3ec961461010d578063e49280cb1461012d578063fec9988c1461014d57600080fd5b366100ac5760005460ff16156100aa5760405162461bcd60e51b815260206004820152601a60248201527f72656365697665722072656a6563746564207472616e73666572000000000000604482015260640160405180910390fd5b005b600080fd5b3480156100bd57600080fd5b506100aa6100cc366004610270565b6000805460ff1916911515919091179055565b3480156100eb57600080fd5b506000546100f99060ff1681565b604051901515815260200160405180910390f35b34801561011957600080fd5b506100aa6101283660046102b5565b610160565b34801561013957600080fd5b506100aa6101483660046102b5565b6101bf565b6100aa61015b3660046102df565b6101ec565b604051632e1a7d4d60e01b8152600481018290526001600160a01b03831690632e1a7d4d906024015b600060405180830381600087803b1580156101a357600080fd5b505af11580156101b7573d6000803e3d6000fd5b505050505050565b6040516340e58ee560e01b8152600481018290526001600160a01b038316906340e58ee590602401610189565b604051630481752f60e11b81526001600160a01b03838116600483015267ffffffffffffffff83166024830152841690630902ea5e90349060440160206040518083038185885af1158015610245573d6000803e3d6000fd5b50505050506040513d601f19601f8201168201806040525081019061026a9190610333565b50505050565b60006020828403121561028257600080fd5b8135801515811461029257600080fd5b9392505050565b80356001600160a01b03811681146102b057600080fd5b919050565b600080604083850312156102c857600080fd5b6102d183610299565b946020939093013593505050565b6000806000606084860312156102f457600080fd5b6102fd84610299565b925061030b60208501610299565b9150604084013567ffffffffffffffff8116811461032857600080fd5b809150509250925092565b60006020828403121561034557600080fd5b505191905056",
+  "runtimeHash": "0x61c2de95179afb67000db50598d67af2975cfa61c63395be949bab25a92a5185",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.38+commit.1835d247"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "target",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "claim",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "target",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "close",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "target",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint64",
+              "name": "duration",
+              "type": "uint64"
+            }
+          ],
+          "name": "open",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "reject",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bool",
+              "name": "value",
+              "type": "bool"
+            }
+          ],
+          "name": "setReject",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "stateMutability": "payable",
+          "type": "receive"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "compilationTarget": {
+        "contracts/test/Receivers.sol": "RejectingReceiver"
+      },
+      "evmVersion": "paris",
+      "libraries": {},
+      "metadata": {
+        "appendCBOR": false,
+        "bytecodeHash": "none"
+      },
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "remappings": []
+    },
+    "sources": {
+      "contracts/test/Receivers.sol": {
+        "keccak256": "0x5622f9c9d0ad719ba7e16e107ac7ea3804be18ebe5203ab79b428ce0c5185111",
+        "license": "MIT",
+        "urls": [
+          "bzz-raw://bf578cba1aee36f16cdcec3b5df42a0f91473e776b30bd5c0ddaa7a3127fd908",
+          "dweb:/ipfs/QmQYFpnMJ5p6HQCPzexiEJp2wy5yokghqB9FshFzyHnzcy"
+        ]
+      }
+    },
+    "version": 1
+  }
+}

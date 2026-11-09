@@ -1,114 +1,165 @@
-# Rill — payment streams
+# Rill
 
-A working React app for native QMS payments that unlock over time. Direction A is implemented: create a stream, withdraw accrued QMS, cancel the remaining schedule, and inspect onchain activity on desktop or mobile.
+Native QMS payments that unlock over time. Fund a stream once, let the recipient withdraw as it accrues, and return any remaining scheduled balance to the sender on cancellation.
 
-The one-minute trial deposits **1 test QMS into a stream to your own wallet for 60 seconds**. Network fees are separate. All connected screens read the chain; the first-visit card is explicitly a preview.
+[Contract on QMSScan](https://testnet.qmsscan.io/address/0x5AB83339041a650214D7D1086c4f8dD428701BCE?tab=contract) · [Testnet faucet](https://faucet.testnet.qms.finance) · [Verification notes](docs/rill-verification.md)
 
-## Run the app
+![Rill's first-visit screen on desktop](docs/images/rill-desktop.png)
 
-Requires Node 24 and npm. From this checkout:
+## What you can do
+
+- Create a payment stream lasting **60 seconds to 365 days**.
+- Withdraw accrued QMS as the recipient, or cancel an unfinished stream as the sender.
+- Try a **one-minute stream of 1 test QMS to your own wallet**. Network fees are separate.
+- Browse incoming and outgoing streams, balances, and transaction history.
+- Connect an injected EVM wallet, switch to QMS Testnet, and review fees before signing.
+- Resume pending transaction tracking after a page refresh.
+
+Rill is a static React app backed by an immutable Solidity contract. It uses native QMS, so token approvals are unnecessary. The contract has no administrator, upgrade mechanism, or protocol fee. All connected views read chain data; the first-visit example is labeled as a preview.
+
+## Deployed contract
+
+| Field | Value |
+| --- | --- |
+| Network | QMS Testnet |
+| Chain ID | `19480` (`0x4c18`) |
+| Native currency | QMS, 18 decimals |
+| RPC | `https://rpc.testnet.qms.finance` |
+| Contract | [`0x5AB83339041a650214D7D1086c4f8dD428701BCE`](https://testnet.qmsscan.io/address/0x5AB83339041a650214D7D1086c4f8dD428701BCE?tab=contract) |
+| Deployment | [Transaction on QMSScan](https://testnet.qmsscan.io/tx/0xe6dc9cc35e076d447725ba2453eaaa50435f8342fa0054a1b0ec79b5dddac608) |
+| Source | [`contracts/RillStream.sol`](contracts/RillStream.sol) |
+
+Source and ABI are published on QMSScan. The explorer reports **verified (partial match)** because the build omits compiler metadata. Both creation and runtime bytecode were independently compared with the compiled artifact and match exactly. See [compiler settings and verification evidence](docs/rill-verification.md#qms-testnet-deployment).
+
+## Quick start
+
+Use **Node.js 24**, npm, and an EVM browser wallet for transactions. Browsing the first-visit screen does not require a wallet.
 
 ```bash
-npm ci --cache /tmp/qms-npm-cache
+git clone --branch feat/rill-app https://github.com/qFloppa/qms-payment-streaming.git
+cd qms-payment-streaming
+npm ci
+cp .env.example .env.local
 npm run dev
 ```
 
-Open the Vite URL (normally `http://localhost:5173`). `npm run build` produces the static site in `dist/`; `npm run preview` serves it locally. Hash routes and relative build assets support static hosting and subdirectories. Use HTTPS for a hosted app.
+Open the URL Vite prints, normally `http://localhost:5173`, in a browser on the machine running the app. The repository is private, so cloning requires GitHub access.
 
-## QMS deployment status
+The example environment selects the deployed QMS Testnet contract. Connect your wallet, switch to QMS Testnet, and get test QMS from the [faucet](https://faucet.testnet.qms.finance). The one-minute trial needs **1 QMS plus the network fee**.
 
-**No QMS Testnet deployment has been made or claimed.** The contract and app are tested against real, disposable Anvil transactions. A funded browser wallet must sign the actual QMS deployment before normal users can create streams.
+### Configuration
 
-1. Open `/#/setup`, connect an EVM wallet, and switch to QMS Testnet.
-2. Get test QMS from the [official faucet](https://faucet.testnet.qms.finance).
-3. Select **Review deployment**, inspect the fee, then confirm in your wallet.
-4. Wait for a successful receipt and runtime-code verification. Copy the shareable app URL, or set `VITE_STREAM_CONTRACT_ADDRESS` in `.env.local` and rebuild.
-
-The setup route is separate from visitor navigation. Addresses from a URL `?contract=0x…`, the build environment, or local storage are checked against the compiled runtime hash before fund transactions. Missing and mismatched deployments are explicit errors. No private key is collected by the browser app.
-
-| Network | Value |
+| Variable | Purpose |
 | --- | --- |
-| Chain | QMS Testnet, 19480 |
-| RPC | `https://rpc.testnet.qms.finance` |
-| Explorer | [QMSScan](https://testnet.qmsscan.io) |
-| Currency | Native QMS, 18 decimals |
+| `VITE_STREAM_CONTRACT_ADDRESS` | Contract used by this build; the example contains the deployment above. |
+| `VITE_LOCAL_DEVELOPMENT` | Set to `true` only for a local development chain. |
+| `VITE_RPC_URL` | Loopback RPC URL required in local mode, such as `http://127.0.0.1:8545`. |
+| `VITE_CHAIN_ID` | Local chain ID; defaults to `31337` in local mode. |
 
-## Streams and transaction handling
+Outside local mode, the app always uses QMS Testnet and its configured public RPC.
 
-- Streams accept positive deposits and durations from 60 seconds to 365 days. Only the recipient can withdraw and only the sender can cancel before completion.
-- Cancellation refunds the still-scheduled amount. Previously unlocked QMS remains claimable by the recipient; completion releases all rounding dust.
-- The contract is immutable, with no administrator or protocol fee. Failed transfers revert accounting; all fund entry points have a reentrancy guard.
-- Displayed amounts use bigint arithmetic and one identified block timestamp. Network fees are estimated before signing; wallet, network, contract, and funds are rechecked before sending.
-- Pending transaction hashes and their chain, contract, wallet, and action survive refresh. A receipt timeout remains pending. A reverted or cancelled transaction is not reported as successful. Keep the transaction hash if browser storage is unavailable.
-- Stream discovery uses 20-item pages; incoming/outgoing filters apply to the current page. Activity queries cover 2,000 blocks at a time, with **Load earlier activity** for history.
-- Wallet discovery supports EIP-6963 and injected EIP-1193 providers. Returning from the faucet refreshes chain data. Keys remain with the wallet.
+A `?contract=0x…` query parameter overrides the build configuration. Otherwise, the app uses a nonempty environment address, then the address saved for that chain in browser storage. Put the query **before** the hash route, for example:
 
-## Local development and tests
+```text
+http://localhost:5173/?contract=0x5AB83339041a650214D7D1086c4f8dD428701BCE#/
+```
+
+Every selected address must match Rill's compiled runtime hash before fund transactions are enabled. Restart Vite after changing `.env.local`; rebuild a hosted site after changing its build environment. All `VITE_*` values are public client configuration.
+
+## Build and host
 
 ```bash
-npm test                 # amount/accounting and wallet lifecycle tests
-npm run test:contracts   # deterministic compile + real Anvil transactions
-npm run typecheck
 npm run build
-npm run test:e2e         # real Chrome/Chromium + an isolated Anvil + test-only wallet
+npm run preview
 ```
 
-Browser tests use Chrome at `/opt/google/chrome/chrome` when available. Otherwise run `npx playwright install --with-deps chromium`, or set `CHROME_PATH`. The harness starts and stops its own chain and Vite server; it needs port 4173 free. No real wallet or keys are needed. Screenshots and failure traces go to `/tmp/qms-qa`.
+The production build is in `dist/`. Deploy that directory to an HTTPS static host, using **`npm ci && npm run build`** as the build command and **`dist`** as the output directory. Set `VITE_STREAM_CONTRACT_ADDRESS` to the deployed address in the host's build environment.
 
-For manual local-chain development:
+Hash routes and relative assets support static hosting and subdirectories without server-side routing. No application server, database, or private key is required to host Rill. Localhost URLs refer to the device opening them; an app running on a VPS needs a hosted HTTPS address or tunnel for remote visitors.
+
+## How streams work
+
+The sender deposits the full amount when creating a stream. QMS unlocks linearly from its start time to its end time. Only the recipient can withdraw, and each withdrawal transfers the unlocked amount that has not already been claimed.
+
+Before completion, the sender can cancel. Cancellation returns the still-scheduled amount to the sender and preserves the recipient's already-unlocked entitlement. Completion releases any rounding remainder.
+
+The contract uses integer accounting and guards all fund entry points against reentrancy. A failed transfer reverts the associated accounting. The interface estimates fees, rechecks wallet and chain context before sending, and tracks confirmation separately from submission. Pending receipts, replacements, and declined signatures have distinct states.
+
+Stream discovery uses 20-item pages; incoming/outgoing filters apply to the current page. Activity loads in 2,000-block ranges with a control for earlier history. Wallet discovery supports EIP-6963 and injected EIP-1193 providers.
+
+## Development and tests
 
 ```bash
-npm run chain
+npm test                 # domain arithmetic and wallet lifecycle
+npm run test:contracts   # compile Solidity and run contracts on disposable Anvil
+npm run typecheck        # TypeScript
+npm run build            # production build, including a type check
+npm run test:e2e         # browser flows with Anvil and a test-only wallet
 ```
 
-Copy `.env.example` to `.env.local`, enable `VITE_LOCAL_DEVELOPMENT=true`, set the loopback RPC and chain ID 31337, then use `/#/setup` with an explicitly configured local wallet. Production defaults always use QMS Testnet; a local override requires a loopback RPC. The deployed bytecode is dynamically loaded on setup.
+The suite contains **37 tests: 18 contract, 8 unit, and 11 browser tests**. It covers accrual, cancellation, rounding, authorization, reentrancy, transfer failures, pagination, wallet/network changes, receipt recovery, and deployment verification. [GitHub Actions](https://github.com/qFloppa/qms-payment-streaming/actions/workflows/ci.yml) runs these checks and ensures generated contract files match the source.
 
-An optional CLI is available via `npm run deploy`. It reads `RILL_RPC_URL` and a **local environment-only** `RILL_PRIVATE_KEY`; never commit or paste keys. It refuses unexpected chains. Disposable Anvil unlocked accounts require both `RILL_ALLOW_LOCAL_CHAIN=true` and `RILL_LOCAL_ACCOUNT`, with a loopback RPC. The CLI reports only the verified deployment address, receipt metadata, and runtime hash.
+Anvil is installed through npm. Browser tests use Chrome at `/opt/google/chrome/chrome` if available. Otherwise, install Chromium:
 
-The overflow contract test seeds one extreme escrow fixture directly because Anvil’s transaction pool caps transaction cost at uint128, then executes the real deployed accounting and withdrawal. All ordinary deposits, withdrawals, cancellations, authorization, transfer failures, and reentrancy tests use actual transactions.
+```bash
+npx playwright install --with-deps chromium
+```
 
-## Design references
+You can also set `CHROME_PATH` to an existing browser executable. The browser harness starts its own chain and Vite server; **port 4173 must be free**. Tests use disposable accounts and do not need a real wallet. Screenshots and failure traces are written to `/tmp/qms-qa`.
 
-The original A/B gallery remains below. Direction A is selected. The original four A exports are the approved references; the Pen document also contains related workflow states. See [implementation specification](docs/superpowers/specs/2026-11-09-rill-design.md) and [verification notes](docs/rill-verification.md).
+### Local chain
 
-## View the screens
+Run `npm run chain` in another terminal, then set these values in `.env.local` and restart Vite:
 
-Click any screen to see its full-resolution image. Each direction includes first visit, active stream, creation, and mobile.
+```dotenv
+VITE_STREAM_CONTRACT_ADDRESS=
+VITE_LOCAL_DEVELOPMENT=true
+VITE_RPC_URL=http://127.0.0.1:8545
+VITE_CHAIN_ID=31337
+```
 
-| Direction A | Direction B |
-| --- | --- |
-| Warm, spacious, serif headings, rust accents | Dark, compact, sans-serif headings, pale green accents |
-| Sidebar navigation and a dedicated stream page | Horizontal navigation and a stream list beside the details |
+Configure a local wallet for that chain using a disposable Anvil account, remove any existing `?contract=…` query parameter, then deploy through `/#/setup`. Clearing the testnet contract address allows the app to use your local deployment. Local mode requires a loopback RPC.
 
-### First visit
+### Deploy another contract
 
-| A | B |
-| --- | --- |
-| [![A — first visit](design/exports/a-first-visit.png)](design/exports/a-first-visit.png) | [![B — first visit](design/exports/b-first-visit.png)](design/exports/b-first-visit.png) |
+The existing QMS Testnet deployment is ready to use. To create a separate instance:
 
-### Active stream
+1. Open `/#/setup`, connect your wallet, and select the intended network.
+2. Fund the wallet with native currency for deployment fees.
+3. Select **Review deployment**, then confirm in your wallet.
+4. Wait for the receipt and runtime-code check, then copy the shareable URL.
 
-| A | B |
-| --- | --- |
-| [![A — active stream](design/exports/a-active-stream.png)](design/exports/a-active-stream.png) | [![B — active stream](design/exports/b-active-stream.png)](design/exports/b-active-stream.png) |
+An optional `npm run deploy` command accepts `RILL_RPC_URL` and `RILL_PRIVATE_KEY` through the local process environment. It defaults to QMS Testnet and rejects unexpected chains. Disposable unlocked Anvil accounts require `RILL_ALLOW_LOCAL_CHAIN=true` and `RILL_LOCAL_ACCOUNT` with a loopback RPC. Wallet keys belong only in the wallet or local process environment, never in `VITE_*` variables or committed files.
 
-### Create a stream
+## Project structure
 
-| A | B |
-| --- | --- |
-| [![A — create a stream](design/exports/a-create-stream.png)](design/exports/a-create-stream.png) | [![B — create a stream](design/exports/b-create-stream.png)](design/exports/b-create-stream.png) |
+```text
+contracts/             RillStream, test receivers, and compiled artifacts
+scripts/               Compilation, deployment, local chain, and browser harness
+src/components/        Shared UI, wallet dialogs, and transaction review
+src/context/           Wallet-to-contract flow and receipt tracking
+src/contracts/         Generated ABI, runtime hash, and deployment bytecode
+src/hooks/             Wallet state and chain snapshots
+src/lib/               Chain configuration, accounting, storage, and transactions
+src/pages/             Home, streams, creation, details, activity, and setup
+src/styles/            Layout, page, and dialog styles
+tests/                 Unit, contract, and browser integration tests
+design/                Approved designs, original explorations, and Pen source
+docs/                  Specification, implementation plan, and verification notes
+```
 
-### Mobile — full page
+The frontend uses React, TypeScript, Vite, viem, and Lucide. Solidity is pinned to **0.8.38**, targeting **Paris**, with optimizer runs set to **200**. Rebuild generated contract files with `npm run contracts:compile`.
 
-| A | B |
-| --- | --- |
-| [![A — mobile](design/exports/a-mobile.png)](design/exports/a-mobile.png) | [![B — mobile](design/exports/b-mobile.png)](design/exports/b-mobile.png) |
+## Design and technical notes
 
-## Editable source and notes
+The interface implements the approved Direction A: warm neutrals, serif headings, rust accents, and responsive layouts. Original design alternatives remain in the [design gallery](design/README.md).
 
-- [Download the editable Pen document](design/explorations.pen)
-- [Design comparison and checks](design/review.md)
 - [Product brief](design/brief.md)
 - [Interaction requirements](design/interaction-notes.md)
+- [Editable Pen design](design/explorations.pen)
+- [Implementation specification](docs/superpowers/specs/2026-11-09-rill-design.md)
+- [Implementation and verification notes](docs/rill-verification.md)
 
-Desktop exports are 1440 × 1000. Mobile exports show the full scrollable page at 390 px wide. The design source uses shared colour and typography variables, reusable navigation and buttons, and editable text and timeline elements.
+## License
+
+`RillStream.sol` declares the MIT license. A repository-wide license has not been specified.

@@ -10,7 +10,20 @@ Expected deployed runtime hash:
 
 `0xf2c103e279572ac31806764e3b405b9e4c43651d3d4ac3356d818d0b21cc9b27`
 
-The public QMS RPC was queried read-only and returned chain ID `0x4c18` (19480). **No QMS deployment or transfer was signed.** Actual deployment remains the owner's wallet action through `/#/setup`. The browser test deploys and verifies the same bytecode on disposable Anvil.
+The owner deployed Rill on QMS Testnet through their wallet on November 9, 2026. The browser tests independently deploy and verify the same bytecode on disposable Anvil.
+
+## QMS Testnet deployment
+
+- Network: QMS Testnet, chain ID `19480` (`0x4c18`).
+- Contract: [`0x5AB83339041a650214D7D1086c4f8dD428701BCE`](https://testnet.qmsscan.io/address/0x5AB83339041a650214D7D1086c4f8dD428701BCE?tab=contract).
+- Deployment transaction: [`0xe6dc9cc35e076d447725ba2453eaaa50435f8342fa0054a1b0ec79b5dddac608`](https://testnet.qmsscan.io/tx/0xe6dc9cc35e076d447725ba2453eaaa50435f8342fa0054a1b0ec79b5dddac608).
+- Compiler: `v0.8.38+commit.1835d247`; EVM target: `paris`; optimizer: enabled, 200 runs.
+- Metadata settings: `bytecodeHash: "none"`, `appendCBOR: false`; no constructor arguments or external libraries.
+- Source and ABI published through QMSScan's Solidity standard JSON input verification endpoint at `2026-11-09T19:06:17.475304Z`.
+
+Verification recompiled `contracts/RillStream.sol` with the artifact's compiler settings. The creation bytecode matched both the artifact and explorer deployment input exactly. Runtime bytecode from the public RPC and explorer also matched the artifact exactly, with the runtime hash above. The source returned by QMSScan was compared with the repository source and matched.
+
+QMSScan reports `is_verified: true`, `is_partially_verified: true`, and **Contract source code verified (partial match)** in its UI. The build omits CBOR compiler metadata; Blockscout's verifier requires matching CBOR metadata to classify a match as full. The partial label is retained here even though the complete creation and runtime bytecode match. The explorer's published contract name, compiler version, optimizer settings, source, and ABI were checked after submission.
 
 ## Functional coverage
 

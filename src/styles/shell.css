@@ -1,20 +1,23 @@
 :root {
   font-family: "DM Sans", sans-serif;
-  color: #252721;
-  background: #faf9f6;
+  color: #182c48;
+  background: #ffffff;
   font-synthesis: none;
   font-weight: 400;
   font-size: 14px;
   line-height: 1.5;
-  --bg: #faf9f6;
-  --rail: #f2f0eb;
-  --ink: #252721;
-  --muted: #66685f;
-  --accent: #a44d32;
-  --chart: #b95e40;
-  --soft: #eee8de;
-  --rule: #e3e0d9;
-  --display: "Instrument Serif", serif;
+  --bg: #ffffff;
+  --rail: #f7f8fa;
+  --ink: #182c48;
+  --muted: #687585;
+  --accent: #315bc8;
+  --chart: #7393ee;
+  --soft: #f3f6fb;
+  --rule: #e4e8ef;
+  --action: #2f5dda;
+  --accent-soft: #f0f4ff;
+  --error: #a33d36;
+  --display: "DM Sans", sans-serif;
   font-variant-numeric: tabular-nums;
 }
 * {
@@ -58,17 +61,17 @@ p {
 }
 h1,
 h2 {
-  font-weight: 400;
+  font-weight: 500;
 }
 h1 {
   font-family: var(--display);
-  font-size: 52px;
-  letter-spacing: -1px;
-  line-height: 1.12;
+  font-size: 40px;
+  letter-spacing: -1.5px;
+  line-height: 1.15;
 }
 h2 {
   font-family: var(--display);
-  font-size: 29px;
+  font-size: 23px;
   line-height: 1.2;
 }
 svg {
@@ -85,10 +88,10 @@ input {
   background: white;
 }
 input::placeholder {
-  color: #77786f;
+  color: #788495;
 }
 input[aria-invalid="true"] {
-  border-color: var(--accent);
+  border-color: var(--error);
 }
 button:focus-visible,
 a:focus-visible,
@@ -122,7 +125,8 @@ a.primary:active {
   white-space: nowrap;
 }
 .primary {
-  background: var(--ink);
+  background: var(--action);
+  box-shadow: 0 2px 5px #164ac618;
   color: white;
 }
 .secondary {
@@ -204,44 +208,63 @@ a.primary:active {
 .sidebar {
   position: fixed;
   inset: 0 auto 0 0;
-  width: 214px;
-  padding: 30px 22px;
+  width: 226px;
+  padding: 39px 23px 29px;
+  border-right: 1px solid var(--rule);
   display: flex;
   flex-direction: column;
   background: var(--rail);
 }
 .wordmark {
-  font-family: var(--display);
-  font-size: 50px;
-  line-height: 1.2;
-  letter-spacing: -3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 500;
+  font-size: 41px;
+  line-height: 1;
+  letter-spacing: -2.5px;
   align-self: flex-start;
+  height: 54px;
+}
+.brand-symbol {
+  width: 38px;
+  height: 38px;
+  padding: 7px;
+  color: #fff;
+  background: var(--ink);
+  border-radius: 10px;
 }
 .brand-caption {
-  font-size: 12px;
   color: var(--muted);
-  margin-top: 8px;
+  margin-top: 13px;
+  font-size: 11px;
+  margin-left: 4px;
+  line-height: 1.3;
+  letter-spacing: 0.15px;
 }
 nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 nav a {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 42px;
-  padding: 0 14px;
-  border-radius: 8px;
+  min-height: 45px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 5px;
   color: var(--muted);
 }
 nav a.selected {
-  background: white;
-  color: var(--ink);
+  background: #eaf0fe;
+  color: var(--accent);
 }
 .sidebar nav {
-  margin-top: 56px;
+  margin-top: 51px;
 }
 .rail-bottom {
   margin-top: auto;
@@ -251,7 +274,14 @@ nav a.selected {
   font-size: 13px;
 }
 .rail-bottom > .text-button {
-  margin: 0 8px 14px;
+  margin: 0 8px 4px;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.rail-bottom > .text-link {
+  padding: 0 8px;
+  margin-bottom: 22px;
+  font-size: 10px;
 }
 .network {
   border-top: 1px solid var(--rule);
@@ -259,7 +289,7 @@ nav a.selected {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 10px;
 }
 .network i,
 .status-dot {
@@ -271,20 +301,21 @@ nav a.selected {
   flex-shrink: 0;
 }
 .app-main {
-  margin-left: 214px;
-  padding: 30px 56px 22px;
+  margin-left: 226px;
+  padding: 33px 55px 22px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 .app-header {
-  height: 44px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
 }
 .breadcrumb {
+  font-size: 12px;
   color: var(--muted);
 }
 .header-actions {
@@ -295,11 +326,12 @@ nav a.selected {
 .wallet-button {
   min-height: 40px;
   padding: 0 16px;
-  font-size: 13px;
+  font-size: 12px;
   gap: 10px;
 }
 .mobile-logo,
 .menu-toggle,
+.mobile-nav,
 .mobile-back {
   display: none;
 }
@@ -415,12 +447,12 @@ footer {
 }
 @media (hover: hover) and (pointer: fine) {
   .primary:hover {
-    background: #393c33;
+    background: #244fca;
   }
   .secondary:hover,
   nav a:hover,
   .icon-button:hover {
-    background: #ece9e2;
+    background: #f0f4fc;
   }
   .text-button:hover,
   .text-link:hover,
@@ -440,10 +472,11 @@ footer {
     padding-left: 32px;
   }
   .sidebar {
-    width: 184px;
+    width: 200px;
+    padding-inline: 16px;
   }
   .app-main {
-    margin-left: 184px;
+    margin-left: 200px;
   }
 }
 @media (max-width: 760px) {
@@ -461,17 +494,18 @@ footer {
     border-bottom: 1px solid var(--rule);
   }
   .mobile-logo {
-    display: block;
-    font-size: 40px;
+    display: inline-flex;
+    font-size: 32px;
     letter-spacing: -2px;
     align-self: auto;
   }
+  .mobile-logo .brand-symbol { width: 31px; height: 31px; padding: 6px; border-radius: 8px; }
   .breadcrumb {
     display: none;
   }
   .menu-toggle {
     display: flex;
-    min-width: 36px;
+    min-width: 44px;
     padding: 4px;
   }
   .wallet-button {
@@ -483,6 +517,7 @@ footer {
     gap: 0;
   }
   .mobile-nav {
+    display: block;
     padding: 12px 0;
     border-bottom: 1px solid var(--rule);
   }
@@ -513,8 +548,8 @@ footer {
     margin-top: 22px;
   }
   .page-heading h1 {
-    font-size: 38px;
-    letter-spacing: -0.6px;
+    font-size: 32px;
+    letter-spacing: -1px;
   }
   .page-heading p {
     font-size: 13px;

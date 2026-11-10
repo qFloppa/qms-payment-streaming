@@ -1,4 +1,5 @@
-import { ArrowRight, ArrowUpRight, Users, Link2 } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Users, Link } from "lucide-react";
+import { StreamPreview } from "../components/StreamPreview";
 
 export function Home() {
   return (
@@ -7,12 +8,12 @@ export function Home() {
         <div className="hero-copy">
           <h1>
             A payment.
-            <br />A little at a time.
+            <br />A little<br /> at a time.
           </h1>
           <p className="hero-description">
             Fund your contributors. Let payments unlock
             <br className="desktop-break" /> as time passes. Everyone withdraws
-            when they’re ready.
+            <br className="desktop-break" /> when they’re ready.
           </p>
           <a className="primary trial-button" href="#/create?trial=1">
             Try a 1-minute stream <ArrowUpRight size={17} />
@@ -24,59 +25,19 @@ export function Home() {
             Create a stream for someone <ArrowRight size={17} />
           </a>
         </div>
-        <div className="first-minute">
-          <div className="row-between">
-            <span>Your first minute</span>
-            <span className="small muted">Preview</span>
-          </div>
-          <div className="preview-available">
-            <p className="small muted">Available to withdraw</p>
-            <p className="hero-amount">
-              0.50000 <span>QMS</span>
-            </p>
-          </div>
-          <div className="preview-scale">
-            <span>0:00</span>
-            <span>0:45 / 1:00</span>
-          </div>
-          <div
-            className="preview-bar"
-            aria-label="Example: one quarter withdrawn, one half available, one quarter scheduled"
-          >
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="preview-legend">
-            <div>
-              <span>● Withdrawn</span>
-              <strong>0.25000</strong>
-            </div>
-            <div>
-              <span>● Available</span>
-              <strong>0.50000</strong>
-            </div>
-            <div>
-              <span>● Still scheduled</span>
-              <strong>0.25000</strong>
-            </div>
-          </div>
-          <p className="small muted same-wallet">
-            Same wallet in. Same wallet out.
-          </p>
-        </div>
+        <StreamPreview />
       </section>
       <div className="workspace-actions home-actions">
         <a href="#/batch">
-          <Users size={22} />
+          <span className="action-symbol"><Users size={20} /></span>
           <div>
             <strong>Pay your team</strong>
-            <span>Fund up to 25 contributors in one transaction.</span>
+            <span>Up to 25 contributors. One transaction.</span>
           </div>
           <ArrowUpRight size={18} />
         </a>
         <a href="#/request">
-          <Link2 size={22} />
+          <span className="action-symbol"><Link size={20} /></span>
           <div>
             <strong>Get paid with a link</strong>
             <span>Share a payment request with your client.</span>
@@ -85,7 +46,7 @@ export function Home() {
         </a>
       </div>
       <section className="onboarding">
-        <h2>Three small steps. A real onchain payment.</h2>
+        <div className="onboarding-heading"><h2>Three small steps. A real onchain payment.</h2><span>Your first stream</span></div>
         <div className="steps">
           {[
             ["01", "Connect your wallet", "Get free test QMS from the faucet."],
@@ -93,11 +54,8 @@ export function Home() {
             ["03", "Withdraw it back", "See every transaction on QMSScan."],
           ].map(([number, title, description]) => (
             <div key={number}>
-              <p>
-                <span>{number}</span>
-                {title}
-              </p>
-              <p className="small muted">{description}</p>
+              <span className="step-number">{number}</span>
+              <div><h3>{title}</h3><p>{description}</p></div>
             </div>
           ))}
         </div>

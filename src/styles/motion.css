@@ -1,0 +1,71 @@
+/* Short, interruptible feedback; balances are never visually interpolated. */
+:root { --ease-out: cubic-bezier(0.22, 1, 0.36, 1); --motion-fast: 150ms; --motion-enter: 220ms; }
+.primary, .secondary, .icon-button, .text-link, .text-button, .copy-button,
+nav a, .template-button, .duration-options button, .filter-tabs button,
+.wallet-option, .workspace-actions > a, .stream-row, .dashboard-stream, .ending-row {
+  transition: color var(--motion-fast) ease-out, background-color var(--motion-fast) ease-out,
+    border-color var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out,
+    transform var(--motion-fast) var(--ease-out);
+}
+input, select, textarea {
+  transition: border-color var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  border-color: var(--action);
+  box-shadow: 0 0 0 3px #2f5dda12;
+  outline-offset: 2px;
+}
+.route-content { animation: page-enter var(--motion-enter) var(--ease-out) both; }
+.hero-copy > *, .stream-preview, .home-actions > a, .onboarding {
+  animation: page-enter 300ms var(--ease-out) both;
+}
+.hero-copy > :nth-child(2) { animation-delay: 30ms; }
+.hero-copy > :nth-child(3) { animation-delay: 60ms; }
+.hero-copy > :nth-child(4), .hero-copy > :nth-child(5) { animation-delay: 90ms; }
+.stream-preview { animation-delay: 60ms; }
+.home-actions > a:nth-child(2) { animation-delay: 30ms; }
+.preview-image img { animation: image-enter 650ms var(--ease-out) both; }
+.preview-ticks i, .timeline-bars > i { transition: background-color 250ms ease-out; }
+.stream-preview[data-playing="true"] .preview-tag i { animation: preview-pulse 2s ease-in-out infinite; }
+.preview-control svg, .copy-button .lucide-check { animation: icon-enter 160ms var(--ease-out); }
+.notice, .request-result, .payout-row { animation: page-enter var(--motion-enter) var(--ease-out) both; }
+.mobile-nav { transform-origin: top; animation: page-enter 180ms var(--ease-out) both; }
+dialog[open] { animation: dialog-enter 200ms var(--ease-out) both; }
+dialog[open]::backdrop { animation: backdrop-enter 180ms ease-out both; }
+.loading { display: flex; align-items: center; gap: 12px; }
+.loading::before {
+  content: ""; width: 16px; height: 16px; flex-shrink: 0; border: 2px solid var(--rule);
+  border-top-color: var(--action); border-radius: 50%; animation: spin 850ms linear infinite;
+}
+.filter-tabs button { position: relative; border-bottom: 0; }
+.filter-tabs button::after {
+  content: ""; position: absolute; inset: auto 0 -1px; height: 2px;
+  background: var(--action); transform: scaleX(0); transform-origin: center;
+  transition: transform 180ms var(--ease-out);
+}
+.filter-tabs button[aria-pressed="true"]::after { transform: scaleX(1); }
+.forecast-bar { transform-origin: bottom; animation: chart-enter 350ms var(--ease-out) both; }
+.text-link > svg, .primary > svg, .workspace-actions > a > svg:last-child { transition: transform 180ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .primary:hover { box-shadow: 0 4px 10px #244ebd20; }
+  .primary:hover > .lucide-arrow-up-right, .workspace-actions > a:hover > svg:last-child { transform: translate(2px, -2px); }
+  .text-link:hover > .lucide-arrow-right { transform: translateX(3px); }
+  .workspace-actions > a:hover { border-color: #c6d4f4; box-shadow: 0 5px 14px #182c4806; }
+  .stream-row:hover, .dashboard-stream:hover, .ending-row:hover { background: #f7f9fd; }
+  .wallet-option:hover { border-color: #bbcdf5; background: var(--accent-soft); }
+  .preview-control:hover { background: var(--accent-soft); }
+}
+.primary:active, .secondary:active, .icon-button:active { transform: scale(0.98); }
+@keyframes page-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes image-enter { from { opacity: 0; transform: scale(1.025); } to { opacity: 0.72; transform: scale(1); } }
+@keyframes dialog-enter { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes backdrop-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes icon-enter { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+@keyframes chart-enter { from { transform: scaleY(0.85); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes preview-pulse { 50% { opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .primary:active, .secondary:active, .icon-button:active { transform: none; }
+  .primary:hover > svg, .text-link:hover > svg, .workspace-actions > a:hover > svg:last-child { transform: none; }
+}

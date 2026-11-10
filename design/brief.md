@@ -1,6 +1,14 @@
 # QMS payment streaming — design brief
 
-Status: **Direction A selected by the user.** Implementation is in progress on `feat/rill-app`. The four A screens in `design/explorations.pen` and `design/exports` are the visual references. Direction B remains an archived exploration.
+Status: **Precision selected by the user on 2026-11-10.** The active visual references are `design/concepts/precision.png` and `design/concepts/precision.html`. Precision supersedes the original Direction A styling described below; the product and payment requirements remain applicable. The original Pen screens and other concepts are archived explorations.
+
+## Current visual system — Precision
+
+White `#ffffff` surfaces, a `#f7f8fa` navigation rail, navy `#182c48` text, blue `#2f5dda` actions, muted `#687585` labels, and `#e4e8ef` rules. DM Sans throughout. The 1536 × 1024 desktop reference uses a 226px rail, 55px content gutters, a three-line headline, and a framed payment preview with a grayscale water strip. The double-channel “r” mark is reused in navigation, photography, and the favicon.
+
+The preview is explicitly illustrative and progresses from the consistent 45-second snapshot to completion. It pauses on request, when offscreen, or when the document is hidden; replay starts at 45 seconds. Reduced motion starts playback paused and removes decorative transitions. Mobile retains readable labels, a stacked layout, and 44px primary touch targets. “Always in flow.” and “Your first stream” are accepted editorial additions.
+
+See the [implementation plan](../docs/superpowers/plans/2026-11-10-precision-design.md) for verification and the [concept notes](concepts/README.md) for the water photograph's source and license.
 
 ## Product
 

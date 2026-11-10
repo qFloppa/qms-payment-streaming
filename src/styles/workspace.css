@@ -1,4 +1,4 @@
-/* Contributor workspace: the original palette with denser, useful records. */
+/* Contributor workspace, using the shared Precision design system. */
 select,
 textarea {
   width: 100%;
@@ -40,7 +40,7 @@ summary:focus-visible {
   margin-bottom: 22px;
 }
 .section-heading h2 {
-  font-size: 27px;
+  font-size: 22px;
 }
 .section-heading p {
   margin-top: 6px;
@@ -59,7 +59,7 @@ summary:focus-visible {
   border-radius: 12px;
   padding: 26px;
   min-width: 0;
-  background: #fff9;
+  background: #fff;
 }
 .soft-panel {
   background: var(--soft);
@@ -131,7 +131,7 @@ summary:focus-visible {
   justify-content: center;
   border-radius: 50%;
   color: var(--accent);
-  background: #f2e9df;
+  background: var(--accent-soft);
 }
 .contact-picker {
   margin-top: 10px;
@@ -174,7 +174,7 @@ summary:focus-visible {
 }
 .request-explainer h2 {
   margin-top: 18px;
-  font-size: 35px;
+  font-size: 28px;
   line-height: 1.15;
 }
 .request-explainer ol {
@@ -204,7 +204,7 @@ summary:focus-visible {
   border-radius: 12px;
 }
 .request-result h2 {
-  font-size: 26px;
+  font-size: 22px;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -237,7 +237,7 @@ summary:focus-visible {
   padding: 16px 22px 22px;
   border: 1px solid var(--rule);
   border-radius: 10px;
-  background: #fff9;
+  background: #fff;
 }
 .payout-row legend {
   padding: 0 8px;
@@ -289,7 +289,7 @@ summary:focus-visible {
 }
 .payout-summary h2 {
   margin-top: 16px;
-  font-size: 31px;
+  font-size: 22px;
 }
 .summary-label {
   margin-top: 28px;
@@ -318,7 +318,7 @@ summary:focus-visible {
   line-height: 1.7;
 }
 .summary-rule {
-  border-top: 1px solid #d9d0c3;
+  border-top: 1px solid var(--rule);
   margin: 24px 0;
 }
 .file-upload {
@@ -375,11 +375,11 @@ dialog textarea {
   border: 1px solid var(--rule);
   border-radius: 10px;
   padding: 22px 20px;
-  background: #fff6;
+  background: #fff;
 }
 .metric-featured {
-  background: #eef0e7;
-  border-color: #dce1d0;
+  background: #f0f4ff;
+  border-color: #dbe5fa;
 }
 .metric > span {
   display: flex;
@@ -409,7 +409,7 @@ dialog textarea {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #46533b;
+  color: var(--accent);
 }
 .dashboard-columns {
   display: grid;
@@ -434,7 +434,7 @@ dialog textarea {
 }
 .incoming-dot,
 .incoming-bar {
-  background: #6c7c54;
+  background: #365789;
 }
 .outgoing-dot,
 .outgoing-bar {
@@ -463,8 +463,8 @@ dialog textarea {
     to top,
     transparent 0px,
     transparent 49px,
-    #e3e0d966 49px,
-    #e3e0d966 50px
+    #e4e8ef88 49px,
+    #e4e8ef88 50px
   );
 }
 .forecast-bar {
@@ -488,7 +488,7 @@ dialog textarea {
   font-size: 13px;
   color: var(--muted);
   padding: 12px;
-  background: #faf9f6bb;
+  background: #ffffffcc;
 }
 .chart-caption {
   margin-top: 16px;
@@ -586,8 +586,8 @@ dialog textarea {
   border-bottom: 1px solid var(--rule);
 }
 .incoming-avatar {
-  background: #eaf0e4;
-  color: #536540;
+  background: #edf3fc;
+  color: #365789;
 }
 .dashboard-stream-name {
   display: flex;
@@ -769,7 +769,7 @@ dialog textarea {
     padding: 20px;
   }
   .section-heading h2 {
-    font-size: 26px;
+    font-size: 22px;
   }
   .forecast-chart {
     gap: 10px;

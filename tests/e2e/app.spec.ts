@@ -159,11 +159,13 @@ test("a contributor request preserves exact terms through review, funding, and r
   await page.screenshot({
     path: "/tmp/qms-qa/request-desktop.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({
     path: "/tmp/qms-qa/request-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,
@@ -214,11 +216,13 @@ test("CSV batch funds independent contributors, populates the dashboard, and per
   await page.screenshot({
     path: "/tmp/qms-qa/batch-desktop.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({
     path: "/tmp/qms-qa/batch-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,
@@ -232,6 +236,7 @@ test("CSV batch funds independent contributors, populates the dashboard, and per
   await page.screenshot({
     path: "/tmp/qms-qa/batch-review.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page
     .getByRole("button", { name: "Confirm in wallet", exact: true })
@@ -245,11 +250,13 @@ test("CSV batch funds independent contributors, populates the dashboard, and per
   await page.screenshot({
     path: "/tmp/qms-qa/workspace-desktop.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({
     path: "/tmp/qms-qa/workspace-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,
@@ -506,6 +513,7 @@ test("approved first visit and missing-wallet flow render on desktop and mobile"
   await page.screenshot({
     path: "/tmp/qms-qa/first-visit.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page
     .getByRole("button", { name: "Connect wallet", exact: true })
@@ -522,6 +530,7 @@ test("approved first visit and missing-wallet flow render on desktop and mobile"
   await page.screenshot({
     path: "/tmp/qms-qa/home-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,
@@ -558,11 +567,13 @@ test("real trial accrues, withdraws, refreshes, and completes with onchain recei
   await page.screenshot({
     path: "/tmp/qms-qa/active-stream.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({
     path: "/tmp/qms-qa/active-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,
@@ -599,11 +610,13 @@ test("signature rejection preserves the form and permits an explicit retry", asy
   await page.screenshot({
     path: "/tmp/qms-qa/create-stream.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({
     path: "/tmp/qms-qa/create-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page
     .getByRole("button", { name: "Review stream", exact: true })
@@ -612,6 +625,7 @@ test("signature rejection preserves the form and permits an explicit retry", asy
   await page.screenshot({
     path: "/tmp/qms-qa/review-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page.evaluate(() => {
     (window as any).testWallet.state.reject = true;

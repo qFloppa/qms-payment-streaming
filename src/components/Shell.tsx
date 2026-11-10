@@ -2,14 +2,15 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import {
   ArrowLeft,
-  ArrowLeftRight,
+  ArrowRightLeft,
+  ArrowUpRight,
   Clock3,
   Menu,
   Wallet,
   X,
-  LayoutDashboard,
+  LayoutGrid,
   Users,
-  Link2,
+  Link,
   ContactRound,
 } from "lucide-react";
 import { useRill } from "../context/RillContext";
@@ -17,6 +18,7 @@ import { chain } from "../lib/config";
 import { shortAddress } from "../lib/domain";
 import { Dialog, ReceiptLink } from "./Primitives";
 import { WalletDialogs } from "./WalletDialogs";
+import { RillMark } from "./RillMark";
 
 export function Shell({
   route,
@@ -41,13 +43,13 @@ export function Shell({
     {
       href: "/",
       label: "Overview",
-      icon: LayoutDashboard,
+      icon: LayoutGrid,
       selected: route === "/",
     },
     {
       href: "/streams",
       label: "Streams",
-      icon: ArrowLeftRight,
+      icon: ArrowRightLeft,
       selected: route.startsWith("/streams") || route === "/create",
     },
     {
@@ -59,7 +61,7 @@ export function Shell({
     {
       href: "/request",
       label: "Request a payment",
-      icon: Link2,
+      icon: Link,
       selected: route === "/request",
     },
     {
@@ -80,7 +82,7 @@ export function Shell({
           aria-current={selected ? "page" : undefined}
           onClick={() => setMenu(false)}
         >
-          <Icon size={18} />
+          <Icon size={17} />
           {label}
         </a>
       ))}
@@ -90,17 +92,18 @@ export function Shell({
     <div className="app-shell">
       <aside className="sidebar">
         <a className="wordmark" href="#/">
-          rill
+          <RillMark className="brand-symbol" /><span>rill</span>
         </a>
         <span className="brand-caption">Contributor payments</span>
         {navigation}
         <div className="rail-bottom">
+          <button className="text-button" onClick={() => setHelp(true)}>
+            How streams work
+            <ArrowUpRight size={14} />
+          </button>
           <a className="text-link small" href="#/setup">
             Deployment setup
           </a>
-          <button className="text-button" onClick={() => setHelp(true)}>
-            How streams work
-          </button>
           <span className="network">
             <i />
             {chain.name}
@@ -110,7 +113,7 @@ export function Shell({
       <div className="app-main">
         <header className="app-header">
           <a className="wordmark mobile-logo" href="#/">
-            rill
+            <RillMark className="brand-symbol" /><span>rill</span>
           </a>
           <a
             className="breadcrumb"
@@ -143,15 +146,16 @@ export function Shell({
             </button>
             <button
               className="icon-button menu-toggle"
-              aria-label="Open navigation"
+              aria-label={menu ? "Close navigation" : "Open navigation"}
               aria-expanded={menu}
+              aria-controls="mobile-navigation"
               onClick={() => setMenu((value) => !value)}
             >
               {menu ? <X size={19} /> : <Menu size={19} />}
             </button>
           </div>
         </header>
-        {menu ? <div className="mobile-nav">{navigation}</div> : null}
+        {menu ? <div className="mobile-nav" id="mobile-navigation">{navigation}</div> : null}
         <main id="main-content" tabIndex={-1}>
           {route.startsWith("/streams/") ? (
             <a className="mobile-back" href="#/streams">
@@ -202,7 +206,7 @@ export function Shell({
                 <ReceiptLink hash={tx.hash} />
               </div>
             ))}
-          {children}
+          <div className="route-content" key={route}>{children}</div>
         </main>
         <footer>
           <span>
@@ -213,6 +217,7 @@ export function Shell({
           {route === "/" ? (
             <button className="text-button" onClick={() => setFaucetOpen(true)}>
               Get test QMS
+              <ArrowUpRight size={12} />
             </button>
           ) : null}
         </footer>

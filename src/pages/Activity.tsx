@@ -33,7 +33,7 @@ export function Activity() {
           wallet={wallet.account}
         />
       ) : (
-        <p role="status">Reading activity…</p>
+        <p className="loading" role="status">Reading activity…</p>
       )}
     </>
   );

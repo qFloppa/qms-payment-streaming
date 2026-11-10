@@ -65,7 +65,7 @@ export function Streams({ initialFilter = "All" }: { initialFilter?: string }) {
       ) : error ? (
         <ErrorNotice message={error} retry={refresh} />
       ) : !data ? (
-        <p role="status">Reading your streams…</p>
+        <p className="loading" role="status">Reading your streams…</p>
       ) : data.count === 0n ? (
         <div className="empty-state">
           <h2>Your first minute starts here.</h2>

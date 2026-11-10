@@ -2,13 +2,13 @@
 
 Contributor payments on QMS. Fund your team in one transaction, share payment requests, and let each recipient withdraw as their payment unlocks.
 
-[Compare the three new design concepts](https://rill-sepia.vercel.app/concepts/) · [View the images on GitHub](design/concepts/README.md)
+[Open Rill](https://rill-sepia.vercel.app/) · [Selected Precision design](design/concepts/README.md#b--precision-fintech)
 
 **V2 is deployed on QMS Testnet with source and ABI verified on QMSScan.** The example configuration selects this deployment, including named streams and atomic contributor payouts. QMSScan labels verification **partial match** because compiler metadata was omitted; the complete creation and runtime bytecode match the compiled source exactly. [Builder submission notes and 90-day plan](docs/builder-program.md).
 
 [V2 contract on QMSScan](https://testnet.qmsscan.io/address/0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc?tab=contract) · [Testnet faucet](https://faucet.testnet.qms.finance) · [Verification notes](docs/rill-verification.md)
 
-![Rill's original first-visit design](docs/images/rill-desktop.png)
+![Rill's Precision first-visit design](docs/images/rill-desktop.png)
 
 ## What you can do
 
@@ -171,11 +171,17 @@ The frontend uses React, TypeScript, Vite, viem, and Lucide. Solidity is pinned 
 
 ## Design and technical notes
 
-The interface implements the approved Direction A: warm neutrals, serif headings, rust accents, and responsive layouts. Original design alternatives remain in the [design gallery](design/README.md).
+The interface implements the selected **Precision** direction: white surfaces, navy DM Sans typography, blue actions, a double-channel “r” mark, and grayscale water photography. The same tokens style the dashboard, forms, stream records, and transaction dialogs. Original alternatives remain in the [concept gallery](design/concepts/README.md).
+
+Short entrances, hover and press feedback, and timeline transitions respond to interaction. The illustrative first-minute preview advances from 45 to 60 seconds, supports pause/resume/replay, and suspends while offscreen or in a hidden tab. Reduced motion disables decorative animation and starts the preview paused. Actual payment balances remain chain-derived.
+
+The bundled [water photograph](https://images.unsplash.com/photo-1518837695005-2083093ee35b) is from Unsplash and used under the [Unsplash license](https://unsplash.com/license).
 
 - [Product brief](design/brief.md)
 - [Interaction requirements](design/interaction-notes.md)
-- [Editable Pen design](design/explorations.pen)
+- [Precision reference](design/concepts/precision.html)
+- [Precision implementation plan](docs/superpowers/plans/2026-11-10-precision-design.md)
+- [Original editable Pen exploration](design/explorations.pen)
 - [Implementation specification](docs/superpowers/specs/2026-11-09-rill-design.md)
 - [Implementation and verification notes](docs/rill-verification.md)
 

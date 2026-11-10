@@ -2,6 +2,8 @@
 
 Contributor payments on QMS. Fund your team in one transaction, share payment requests, and let each recipient withdraw as their payment unlocks.
 
+[Compare the three new design concepts](https://rill-sepia.vercel.app/concepts/) · [View the images on GitHub](design/concepts/README.md)
+
 **V2 is deployed on QMS Testnet with source and ABI verified on QMSScan.** The example configuration selects this deployment, including named streams and atomic contributor payouts. QMSScan labels verification **partial match** because compiler metadata was omitted; the complete creation and runtime bytecode match the compiled source exactly. [Builder submission notes and 90-day plan](docs/builder-program.md).
 
 [V2 contract on QMSScan](https://testnet.qmsscan.io/address/0xC53B89bd7e67B8cC6bdbae64E068F6710C719Efc?tab=contract) · [Testnet faucet](https://faucet.testnet.qms.finance) · [Verification notes](docs/rill-verification.md)

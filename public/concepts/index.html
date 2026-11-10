@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#faf9f6" />
+    <link rel="icon" type="image/svg+xml" href="../rill.svg" />
+    <meta name="description" content="Compare three visual directions for Rill: warm editorial, precision fintech, and dark luxury." />
+    <title>Rill — Design concepts</title>
+    <style>
+      :root { font-family: system-ui, sans-serif; color: #243a30; background: #faf9f6; font-synthesis: none; }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+      body { margin: 0; }
+      a { color: inherit; }
+      a:focus-visible { outline: 2px solid #557b65; outline-offset: 5px; }
+      .wrap { width: min(1280px, calc(100% - 48px)); margin-inline: auto; }
+      header { padding-top: 30px; }
+      .brand { display: inline-flex; gap: 14px; align-items: center; text-decoration: none; font-size: 13px; }
+      .brand strong { font: 40px/1 Georgia, serif; letter-spacing: -3px; }
+      .brand span { border-left: 1px solid #d8ddd5; padding-left: 14px; color: #667169; }
+      h1 { font: 400 clamp(32px, 5vw, 56px)/1.1 Georgia, serif; letter-spacing: -1.5px; margin: 48px 0 16px; }
+      .intro { max-width: 640px; color: #667169; font-size: 15px; line-height: 1.7; margin: 0 0 34px; }
+      nav { position: sticky; top: 0; z-index: 1; background: #faf9f6f5; border-block: 1px solid #e1e4dc; backdrop-filter: blur(12px); }
+      nav .wrap { display: flex; gap: 10px; padding-block: 12px; overflow-x: auto; }
+      nav a { white-space: nowrap; padding: 11px 15px; border: 1px solid #dfe3da; border-radius: 6px; font-size: 12px; text-decoration: none; background: white; }
+      main { padding-block: 4px 64px; }
+      section { padding-top: 42px; }
+      .caption { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+      h2 { font-size: 20px; font-weight: 500; letter-spacing: -.5px; margin: 0 0 8px; }
+      h2 span { color: #7a867c; margin-right: 10px; font-size: 14px; }
+      .caption p { margin: 0; color: #667169; font-size: 13px; line-height: 1.6; }
+      .open { font-size: 12px; white-space: nowrap; text-underline-offset: 4px; }
+      .image-link { display: block; border: 1px solid #dfe3da; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 24px #233a3008; }
+      img { display: block; width: 100%; height: auto; }
+      .motion { font-size: 12px; color: #667169; line-height: 1.7; margin: 12px 0 0; }
+      .motion strong { color: #344d3e; font-weight: 500; }
+      footer { border-top: 1px solid #e1e4dc; padding: 24px 0 32px; font-size: 12px; color: #667169; }
+      footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+      @media (hover: hover) and (pointer: fine) { nav a:hover { background: #edf1e9; } .open:hover { color: #243a30; } }
+      @media (max-width: 600px) {
+        .wrap { width: calc(100% - 32px); }
+        header { padding-top: 22px; }
+        h1 { margin-top: 34px; }
+        .intro { font-size: 14px; }
+        nav a { padding: 10px; font-size: 11px; white-space: normal; line-height: 1.5; }
+        nav .wrap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+        .caption { align-items: flex-start; gap: 12px; }
+        h2 { font-size: 18px; }
+        .caption p { font-size: 12px; }
+        .open { font-size: 11px; padding-top: 5px; }
+        section { padding-top: 32px; }
+      }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    </style>
+  </head>
+  <body>
+    <header class="wrap">
+      <a class="brand" href="../"><strong>rill</strong><span>Design concepts</span></a>
+      <h1>Choose a direction for Rill.</h1>
+      <p class="intro">Three approaches to the same payment experience, each with a simple logo treatment. These are static visual previews. Open any image at full size to inspect the details.</p>
+    </header>
+    <nav aria-label="Design directions"><div class="wrap">
+      <a href="#warm">A · Warm editorial</a>
+      <a href="#precision">B · Precision fintech</a>
+      <a href="#dark">C · Dark luxury</a>
+    </div></nav>
+    <main class="wrap">
+      <section id="warm" aria-labelledby="warm-title">
+        <div class="caption"><div><h2 id="warm-title"><span>A</span>Warm editorial</h2><p>Ivory, forest green, expressive typography, and water imagery.</p></div><a class="open" href="warm.png">Open full size</a></div>
+        <a class="image-link" href="warm.png" aria-label="Open warm editorial concept at full size"><img src="warm.png" alt="Rill in warm ivory and forest green, with a serif headline, flowing r monogram, and a payment preview over water photography." width="1536" height="1024" fetchpriority="high" /></a>
+        <p class="motion"><strong>Proposed motion:</strong> gentle entrances, a flowing preview timeline, subtle image movement, and soft press feedback.</p>
+      </section>
+      <section id="precision" aria-labelledby="precision-title">
+        <div class="caption"><div><h2 id="precision-title"><span>B</span>Precision fintech</h2><p>Cool white, navy, sharper typography, and precise controls.</p></div><a class="open" href="precision.png">Open full size</a></div>
+        <a class="image-link" href="precision.png" aria-label="Open precision fintech concept at full size"><img src="precision.png" alt="Rill in cool white, navy, and blue, with geometric typography, a compact r monogram, and a crisp payment panel." width="1536" height="1024" loading="lazy" /></a>
+        <p class="motion"><strong>Proposed motion:</strong> fast transitions, precise progress updates, and crisp navigation and control feedback.</p>
+      </section>
+      <section id="dark" aria-labelledby="dark-title">
+        <div class="caption"><div><h2 id="dark-title"><span>C</span>Dark luxury</h2><p>Deep charcoal, silver-green accents, and atmospheric depth.</p></div><a class="open" href="dark.png">Open full size</a></div>
+        <a class="image-link" href="dark.png" aria-label="Open dark luxury concept at full size"><img src="dark.png" alt="Rill in dark charcoal and silver green, with horizontal navigation, editorial typography, and water imagery behind a translucent payment panel." width="1536" height="1024" loading="lazy" /></a>
+        <p class="motion"><strong>Proposed motion:</strong> atmospheric image movement, restrained light effects, and smooth panel entrances.</p>
+      </section>
+    </main>
+    <footer><div class="wrap"><span>Concepts for review · Illustrative payment values</span><a href="../">Return to Rill</a></div></footer>
+  </body>
+</html>

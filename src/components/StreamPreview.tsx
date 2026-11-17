@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw } from "lucide-react";
 import { RillMark } from "./RillMark";
+import streamWater from "../assets/stream-water.jpg";
 
 const initialTime = 45_000;
 const duration = 60_000;
@@ -56,8 +57,8 @@ export function StreamPreview() {
 
   return (
     <section className="stream-preview" ref={region} data-playing={running} aria-label="Illustrative stream preview">
-      <div className="preview-image">
-        <img src={`${import.meta.env.BASE_URL}stream-water.jpg`} alt="" width="1400" height="933" fetchPriority="high" />
+      <div className="preview-image" onContextMenu={(event) => event.preventDefault()}>
+        <img src={streamWater} alt="" width="1400" height="933" fetchPriority="high" draggable={false} />
         <div className="preview-image-signature"><RillMark /><span>Always in flow.</span></div>
       </div>
       <div className="preview-content">

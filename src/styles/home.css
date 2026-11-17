@@ -39,6 +39,8 @@
   height: 163px;
   overflow: hidden;
   background: #dce0e4;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 .preview-image img {
   display: block;
@@ -48,6 +50,7 @@
   object-position: 50% 52%;
   filter: grayscale(1);
   opacity: 0.72;
+  pointer-events: none;
 }
 .preview-image-signature {
   position: absolute;
